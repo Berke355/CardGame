@@ -1,0 +1,32 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a41b7185e7cd7a2478a85a42dd6bd815, type: 3}
+  m_Name: Intikal_Kart
+  m_EditorClassIdentifier: Assembly-CSharp::CardData
+  kartAdi: "\u0130ntikal"
+  tur: 1
+  aciklama: "1 intikal puan\u0131 kazan"
+  orduKartiMi: 0
+  uretilecekBirlikler: []
+  binaKartiMi: 0
+  insaEdilecekBina: 
+  apBedeli: 1
+  altinBedeli: 0
+  tasBedeli: 0
+  yemekBedeli: 0
+  kazanilanAltin: 0
+  kazanilanTas: 0
+  kazanilanYemek: 0
+  kazanilanIntikal: 5
+  sinirdanAltinKazan: 0
+  sinirdanTasKazan: 0
+  sinirdanYemekKazan: 0

@@ -1,0 +1,36 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a41b7185e7cd7a2478a85a42dd6bd815, type: 3}
+  m_Name: GocmenEgit_Kart
+  m_EditorClassIdentifier: Assembly-CSharp::CardData
+  kartAdi: "G\xF6\xE7men E\u011Fit"
+  tur: 0
+  aciklama: "Bir Kalenin yan\u0131ndaki alt\u0131genlerden birine G\xF6\xE7men birli\u011Fi
+    e\u011Fitir. Bu birlik hareket h\u0131z\u0131 k\u0131s\u0131tl\u0131 olsa da
+    s\u0131n\u0131rlar\u0131n\u0131n d\u0131\u015Far\u0131s\u0131nda kale veya k\xF6y
+    kurmana olanak sa\u011Flar. Kurulum bitti\u011Finde haritadan silinir."
+  orduKartiMi: 1
+  uretilecekBirlikler:
+  - Gocmen
+  binaKartiMi: 0
+  insaEdilecekBina: 
+  apBedeli: 1
+  altinBedeli: 0
+  tasBedeli: 0
+  yemekBedeli: 1
+  kazanilanAltin: 0
+  kazanilanTas: 0
+  kazanilanYemek: 0
+  kazanilanIntikal: 0
+  sinirdanAltinKazan: 0
+  sinirdanTasKazan: 0
+  sinirdanYemekKazan: 0

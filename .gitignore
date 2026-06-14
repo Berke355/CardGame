@@ -1,0 +1,52 @@
+# Bu .gitignore dosyası Unity projenizin ana dizininde bulunmalıdır.
+# Unity'nin otomatik ürettiği ve GitHub'a yüklenmemesi gereken geçici dosyaları engeller.
+
+/[Ll]ibrary/
+/[Tt]emp/
+/[Oo]bj/
+/[Bb]uild/
+/[Bb]uilds/
+/[Ll]ogs/
+/[Uu]ser[Ss]ettings/
+
+# Aşırı yer kaplayabilen bellek dökümleri
+/[Mm]emoryCaptures/
+
+# Video kayıtları
+/[Rr]ecordings/
+
+# Visual Studio önbellek dizini
+.vs/
+
+# Gradle önbellek dizini
+.gradle/
+
+# Otomatik oluşturulan Visual Studio / Rider çözüm (solution) dosyaları
+ExportedObj/
+.consulo/
+*.csproj
+*.unityproj
+*.sln
+*.suo
+*.tmp
+*.user
+*.userprefs
+*.pidb
+*.booproj
+*.svd
+*.pdb
+*.mdb
+*.opendb
+*.VC.db
+
+# Çökme raporları
+sysinfo.txt
+
+# Çıktılar (Builds)
+*.apk
+*.aab
+*.unitypackage
+*.app
+
+# IDE Ayarları
+.idea/
