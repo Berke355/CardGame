@@ -51,7 +51,8 @@ public class MapController : MonoBehaviour
     {
         if(haritaUret) HaritaUret(); // YENİ: Başkentten önce haritayı çiz
 
-        HaritayiSisleKapla();
+        // TEST İÇİN GEÇİCİ OLARAK SİS KALDIRILDI
+        // HaritayiSisleKapla();
         BaskentKur();
         DusmanYapayZekasiniKur(); // YENİ: Düşman AI kalesini kur
         HaydutKamplariniKoy(); // YENİ: Haydutları oyuncunun yanına düşmesin diye sona aldık
@@ -78,10 +79,28 @@ public class MapController : MonoBehaviour
         {
             for (int y = -haritaYuksekligi / 2; y < haritaYuksekligi / 2; y++)
             {
-                float noise = Mathf.PerlinNoise(x * perlinOlcegi + offsetX, y * perlinOlcegi + offsetY);
+                // Daha doğal ve noktasal göller için iki farklı Perlin Noise katmanını birleştiriyoruz
+                float anaGurultu = Mathf.PerlinNoise(x * perlinOlcegi * 1.5f + offsetX, y * perlinOlcegi * 1.5f + offsetY);
+                float detayGurultu = Mathf.PerlinNoise(x * perlinOlcegi * 3f + offsetX, y * perlinOlcegi * 3f + offsetY);
+                float noise = (anaGurultu * 0.8f) + (detayGurultu * 0.2f);
+                
+                // YENİ: Sadece haritanın EN uç kısımlarında (1-2 tile) denizi zorunlu kılacak sert falloff
+                float nx = (float)Mathf.Abs(x) / (haritaGenisligi / 2f);
+                float ny = (float)Mathf.Abs(y) / (haritaYuksekligi / 2f);
+                float falloff = Mathf.Max(nx, ny);
+                
+                if (falloff > 0.85f)
+                {
+                    // Sadece %85'ten dışarıdaysa (en kenarlar) karayı çok hızlı bir şekilde çökert
+                    noise -= (falloff - 0.85f) * 5f; 
+                }
+
+                // Göllerin çok devasa nehirler olmaması için su eşiğini biraz kıstık (Eğer inspector'da 0.40 ise koda göre 0.35 gibi davranır)
+                float gercekSuEsigi = suEsigi * 0.85f; 
+
                 Vector3Int pos = new Vector3Int(x, y, 0);
 
-                if (noise < suEsigi)
+                if (noise < gercekSuEsigi)
                 {
                     hexTilemap.SetTile(pos, suTile);
                 }
@@ -726,11 +745,24 @@ public class MapController : MonoBehaviour
                 if (tile == cimenTile) 
                 {
                     Vector3 dunyaPos = hexTilemap.GetCellCenterWorld(pos);
-                    // Başkentimize çok daha uzak olsun (Başlangıç sınırlarımızın dışında)
-                    if (Vector2.Distance(dunyaPos, bizimBaskent.transform.position) > 20f)
+                    // Mesafe şartı 40x30 haritada çok büyük olunca kale doğmuyordu, 14f'e düşürdük
+                    if (Vector2.Distance(dunyaPos, bizimBaskent.transform.position) > 14f)
                     {
                         uygunKaralar.Add(pos);
                     }
+                }
+            }
+        }
+
+        // Eğer 14f bile çok büyük geldiyse (çok küçük harita üretildiyse) Fallback yap
+        if (uygunKaralar.Count == 0)
+        {
+            foreach (var pos in bounds.allPositionsWithin)
+            {
+                if (hexTilemap.HasTile(pos) && hexTilemap.GetTile(pos) == cimenTile)
+                {
+                    Vector3 dunyaPos = hexTilemap.GetCellCenterWorld(pos);
+                    if (Vector2.Distance(dunyaPos, bizimBaskent.transform.position) > 8f) uygunKaralar.Add(pos);
                 }
             }
         }
