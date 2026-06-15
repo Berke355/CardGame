@@ -84,7 +84,7 @@ SpriteRenderer:
   m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 2
+  m_SortingOrder: 15
   m_MaskInteraction: 0
   m_Sprite: {fileID: -6945784394179354310, guid: 1781a4868b1133b4babbfb26d8ab5944, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -130,7 +130,7 @@ BoxCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: 0.023991406, y: 0.000000059604645}
+  m_Offset: {x: -0.048784196, y: 0.010123014}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
@@ -140,7 +140,7 @@ BoxCollider2D:
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
-  m_Size: {x: 0.93708086, y: 0.9531703}
+  m_Size: {x: 1.5010937, y: 2.5121002}
   m_EdgeRadius: 0
 --- !u!114 &7912377438044601282
 MonoBehaviour:
@@ -192,7 +192,7 @@ MonoBehaviour:
   gridY: 0
   saldirdiMi: 0
   yuruduMu: 0
-  hareketHizi: 2
+  hareketHizi: 3
   canYazisi: {fileID: 6897110517516661549}
 --- !u!1 &4186239652073127482
 GameObject:

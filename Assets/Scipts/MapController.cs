@@ -405,6 +405,16 @@ public class MapController : MonoBehaviour
                     if (secilenBirlik != null)
                     {
                         ArmyStats stats = secilenBirlik.GetComponent<ArmyStats>();
+                        
+                        // YENİ: Civilization Kuralı Kontrolü
+                        if (stats.buTurHareketEttiMi)
+                        {
+                            Debug.Log("HATA: Bu birlik bu tur zaten hareket etti! Bir sonraki turu beklemelisin.");
+                            secilenBirlik = null;
+                            MenziliTemizle();
+                            return;
+                        }
+
                         Vector3Int baslangicHex = hexTilemap.WorldToCell(secilenBirlik.transform.position);
                         
                         // Kuş uçuşu yerine sadece karadan gidebildiği kadar BFS sorgusu yap
@@ -421,6 +431,7 @@ public class MapController : MonoBehaviour
                                 }
 
                                 secilenBirlik.GetComponent<UnitController>().YolaCik(rotamDunya);
+                                stats.buTurHareketEttiMi = true; // YENİ: Birlik hareket etti olarak işaretlendi
                                 GameManager.Instance.intikalPuani -= 1; 
                                 secilenBirlik = null; 
                                 MenziliTemizle();     

@@ -12,6 +12,9 @@ public class ArmyStats : MonoBehaviour
     public int mevcutCan = 3;
     public int hareketMenzili = 3; // 1 İntikal harcayarak kaç hex gideceği
     public int hasarGucu = 1;
+    
+    // YENİ: Civilization Kuralı - Her birim turda 1 kez yürüyebilir
+    public bool buTurHareketEttiMi = false;
 
     [Header("Arayüz (UI)")]
     public TMP_Text orduCanYazisi; // Unity'den sürükleyeceğimiz yazı

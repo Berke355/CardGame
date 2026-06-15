@@ -61,6 +61,18 @@ public class GameManager : MonoBehaviour
 
         // 1. Bizim turumuz başlasın
         aksiyonPuani = 3; 
+
+        // YENİ: Civilization Kuralı - Her turun başında tüm birliklerin hareket hakkını sıfırla
+        GameObject[] tumBirlikler = GameObject.FindGameObjectsWithTag("Unit");
+        foreach (GameObject birlik in tumBirlikler)
+        {
+            ArmyStats stats = birlik.GetComponent<ArmyStats>();
+            if (stats != null)
+            {
+                stats.buTurHareketEttiMi = false;
+            }
+        }
+
         EliAtigaGonder(); // Elindeki eski kartları temizle
         KartCek(4);       // Yeni 4 kart çek
     }
