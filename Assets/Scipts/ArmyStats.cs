@@ -16,6 +16,9 @@ public class ArmyStats : MonoBehaviour
     // YENİ: Civilization Kuralı - Her birim turda 1 kez yürüyebilir
     public bool buTurHareketEttiMi = false;
 
+    // YENİ: Kart efektleri için kimlik
+    public bool dusmanMi = false;
+
     [Header("Arayüz (UI)")]
     public TMP_Text orduCanYazisi; // Unity'den sürükleyeceğimiz yazı
 

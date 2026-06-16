@@ -290,16 +290,43 @@ public class MapController : MonoBehaviour
                     GameObject tiklananKale = null;
                     GameObject tiklananKoy = null;
                     GameObject tiklananHaydut = null;
+                    GameObject tiklananBirlik = null; // YENİ
 
                     foreach (Collider2D obje in buradakiler)
                     {
                         if (obje.CompareTag("Kale") || obje.GetComponent<MakroKale>() != null) { tiklananKale = obje.gameObject; }
                         else if (obje.CompareTag("Koy") || obje.GetComponent<MakroKoy>() != null) { tiklananKoy = obje.gameObject; }
                         else if (obje.CompareTag("Haydut") || obje.GetComponent<HaydutKampi>() != null) { tiklananHaydut = obje.gameObject; }
+                        else if (obje.CompareTag("Unit")) { tiklananBirlik = obje.gameObject; }
                     }
 
-                    // 1. DURUM: EĞER BİR BİRLİK SEÇİLİYSE VE BİR HEDEFE TIKLANDIYSA
-                    if (secilenBirlik != null)
+                    // --- YENİ EKLENEN: İNCELE (INSPECT) MANTIĞI ---
+                    if (GameManager.Instance.secilenKart == null)
+                    {
+                        if (tiklananBirlik != null || tiklananKale != null)
+                        {
+                            GameObject hedef = tiklananBirlik != null ? tiklananBirlik : tiklananKale;
+                            ArmyStats hedefOrdu = hedef.GetComponent<ArmyStats>();
+                            
+                            // Bu kale/birlik düşman mı?
+                            bool isEnemy = (hedefOrdu != null && hedefOrdu.dusmanMi) || (hedef.GetComponent<MakroKale>() != null && !bizimSinirlar.Contains(cellPosition));
+                            
+                            // Eğer DOST bir birliğe/kaleye tıkladıysak VEYA (düşmansa ve bizde ordu seçili değilse) => İNCELE!
+                            if (!isEnemy || (isEnemy && secilenBirlik == null))
+                            {
+                                if (GameManager.Instance != null) GameManager.Instance.IncelePaneliniAc(hedef);
+                                return; // Yürütme/saldırı kodlarını atla
+                            }
+                        }
+                        else
+                        {
+                            // Boş bir yere sağ tıkladıysak inceleme panelini kapat
+                            if (GameManager.Instance != null) GameManager.Instance.IncelePaneliniKapat();
+                        }
+                    }
+
+                    // 1. DURUM: EĞER BİR BİRLİK SEÇİLİYSE VE BİR HEDEFE TIKLANDIYSA (Kart Oynanmıyorsa)
+                    if (secilenBirlik != null && GameManager.Instance.secilenKart == null)
                     {
                         ArmyStats orduStat = secilenBirlik.GetComponent<ArmyStats>();
                         bool isKesif = (orduStat != null && orduStat.icindekiBirlikler.Contains("Kesif"));
@@ -414,14 +441,19 @@ public class MapController : MonoBehaviour
                             }
                         }
 
-                        if (!isBuildingOverSettler)
+                        bool isTargetedBuffCard = GameManager.Instance.secilenKart != null && 
+                            !GameManager.Instance.secilenKart.orduKartiMi && 
+                            !GameManager.Instance.secilenKart.binaKartiMi;
+
+                        if (!isBuildingOverSettler && !isTargetedBuffCard)
                         {
                             Debug.Log("HATA: Bu altıgen dolu veya saldırmak için uygun birlik/hedef seçilmedi!");
                             return; // Oraya yürüme veya kart üretimi yapmasını engelliyoruz
                         }
                     }
 
-                    if (secilenBirlik != null)
+                    // 3. DURUM: EĞER BİR BİRLİK SEÇİLİYSE VE BOŞ BİR YERE YÜRÜMEK İSTİYORSA
+                    if (secilenBirlik != null && GameManager.Instance.secilenKart == null)
                     {
                         ArmyStats stats = secilenBirlik.GetComponent<ArmyStats>();
                         
@@ -620,6 +652,94 @@ public class MapController : MonoBehaviour
                                 SinirlariVeSisiGuncelle(); // Sınır anında yenilensin
                             }
                             else Debug.Log($"Yetersiz Kaynak! {oynanacakKart.kartAdi} kartını oynamak için tüm bedelleri karşılayamıyorsun.");
+                        }
+                        else 
+                        {
+                            // YENİ: BUFF VEYA SABOTAJ (Hedefli Kart) BUG FIX: OverlapCircleAll kullanıldı
+                            if (GameManager.Instance.aksiyonPuani >= oynanacakKart.apBedeli && GameManager.Instance.tas >= oynanacakKart.tasBedeli && GameManager.Instance.altin >= oynanacakKart.altinBedeli && GameManager.Instance.yemek >= oynanacakKart.yemekBedeli)
+                            {
+                                Collider2D[] hedeflenenObjeler = Physics2D.OverlapCircleAll(hedefPozisyon, 0.5f);
+                                ArmyStats orduStats = null;
+                                MakroKale kaleStats = null;
+
+                                foreach (Collider2D obje in hedeflenenObjeler)
+                                {
+                                    if (obje.GetComponent<ArmyStats>() != null) orduStats = obje.GetComponent<ArmyStats>();
+                                    if (obje.GetComponent<MakroKale>() != null) kaleStats = obje.GetComponent<MakroKale>();
+                                }
+
+                                if (orduStats != null)
+                                {
+                                    if (oynanacakKart.kendiOrdunuFedaEt && !orduStats.dusmanMi)
+                                    {
+                                        Destroy(orduStats.gameObject);
+                                        Debug.Log("Kendi ordu feda edildi!");
+                                    }
+                                    else
+                                    {
+                                        orduStats.hasarGucu += oynanacakKart.orduHasarArtisi;
+                                        orduStats.mevcutCan += oynanacakKart.orduCanArtisi;
+                                        if (oynanacakKart.orduCanArtisi > 0) orduStats.maxCan += oynanacakKart.orduCanArtisi;
+                                        
+                                        if (oynanacakKart.orduHareketHiziArtisi > 0)
+                                        {
+                                            orduStats.hareketMenzili += oynanacakKart.orduHareketHiziArtisi;
+                                        }
+                                        
+                                        if (oynanacakKart.dusmanHareketEngelle && orduStats.dusmanMi)
+                                        {
+                                            orduStats.buTurHareketEttiMi = true; 
+                                            Debug.Log("Düşman ordusu donduruldu!");
+                                        }
+                                        if (oynanacakKart.dusmanIntikalSifirla && orduStats.dusmanMi)
+                                        {
+                                            orduStats.buTurHareketEttiMi = true; // Intikal sistemi tam gelişmediği için hareket hakkını alıyoruz
+                                            Debug.Log("Düşmanın tedariki kesildi!");
+                                        }
+                                        if (oynanacakKart.dusmanBirlikYokEt > 0 && orduStats.dusmanMi)
+                                        {
+                                            orduStats.mevcutCan = Mathf.Max(0, orduStats.mevcutCan - oynanacakKart.dusmanBirlikYokEt);
+                                            Debug.Log("Düşman birliğine suikast/rüşvet yapıldı!");
+                                            if(orduStats.mevcutCan <= 0) Destroy(orduStats.gameObject);
+                                        }
+                                        if (oynanacakKart.dusmanOrduyuCal && orduStats.dusmanMi)
+                                        {
+                                            orduStats.dusmanMi = false; // Taraf değiştir
+                                            // Rengini vb. değiştirebiliriz ama şimdilik mantık yeterli
+                                            Debug.Log("Düşman ordusu taraf değiştirdi!");
+                                        }
+                                        if (oynanacakKart.ekHareketHakki > 0 && !orduStats.dusmanMi)
+                                        {
+                                            orduStats.buTurHareketEttiMi = false; 
+                                            Debug.Log("Orduya ek hareket hakkı verildi!");
+                                        }
+                                        
+                                        orduStats.CanYazisiniGuncelle();
+                                    }
+
+                                    GameManager.Instance.aksiyonPuani -= oynanacakKart.apBedeli;
+                                    GameManager.Instance.altin -= oynanacakKart.altinBedeli;
+                                    GameManager.Instance.tas -= oynanacakKart.tasBedeli;
+                                    GameManager.Instance.yemek -= oynanacakKart.yemekBedeli;
+                                    GameManager.Instance.KartOynandi();
+                                }
+                                else if (kaleStats != null)
+                                {
+                                    kaleStats.maxKapiCani += oynanacakKart.kaleKapiCaniArtisi;
+                                    kaleStats.kapiCani += oynanacakKart.kaleKapiCaniArtisi; 
+                                    
+                                    GameManager.Instance.aksiyonPuani -= oynanacakKart.apBedeli;
+                                    GameManager.Instance.altin -= oynanacakKart.altinBedeli;
+                                    GameManager.Instance.tas -= oynanacakKart.tasBedeli;
+                                    GameManager.Instance.yemek -= oynanacakKart.yemekBedeli;
+                                    GameManager.Instance.KartOynandi();
+                                }
+                                else
+                                {
+                                    Debug.Log("HATA: Boşluğa tıklayamazsın. Bir hedef (ordu/kale) seçmelisin.");
+                                }
+                            }
+                            else Debug.Log($"Yetersiz Kaynak! {oynanacakKart.kartAdi} maliyetini karşılamıyorsun.");
                         }
                     }
                 }

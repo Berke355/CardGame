@@ -1,0 +1,53 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a41b7185e7cd7a2478a85a42dd6bd815, type: 3}
+  m_Name: Stark_Iyiles
+  m_EditorClassIdentifier: Assembly-CSharp::CardData
+  kartAdi: "\u0130yile\u015F"
+  tur: 0
+  aciklama: "Bir ordunun t\xFCm ya\u015Fayan birliklerinin can\u0131n\u0131 1 art\u0131r."
+  orduKartiMi: 0
+  uretilecekBirlikler: []
+  binaKartiMi: 0
+  insaEdilecekBina: 
+  apBedeli: 1
+  altinBedeli: 0
+  tasBedeli: 0
+  yemekBedeli: 0
+  kazanilanAltin: 0
+  kazanilanTas: 0
+  kazanilanYemek: 0
+  kazanilanIntikal: 0
+  sinirdanAltinKazan: 0
+  sinirdanTasKazan: 0
+  sinirdanYemekKazan: 0
+  isTuketimKarti: 0
+  cekilecekKartSayisi: 0
+  orduHasarArtisi: 0
+  orduCanArtisi: 0
+  orduHareketHiziArtisi: 0
+  kaleKapiCaniArtisi: 0
+  kaleOkcuHasariArtisi: 0
+  kendiOrdunuFedaEt: 0
+  ordununKopyasiniUret: 0
+  ekHareketHakki: 0
+  dusmanHareketEngelle: 0
+  dusmanIntikalSifirla: 0
+  dusmanBirlikYokEt: 0
+  dusmanOrduyuCal: 0
+  kaleyeHasarVer: 0
+  sart3AltinHarcandiysaBonus: 0
+  sartKuvvetliKaleVarsaBonus: 0
+  zorlaTahsilatEfekti: 0
+  relicVerir: 0
+  desteyeLanetKartiEkle: 0
+  rakipDesteSabotaji: 0

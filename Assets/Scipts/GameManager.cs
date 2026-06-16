@@ -26,7 +26,14 @@ public class GameManager : MonoBehaviour
     [Header("Kart Sistemi Altyapısı")]
     public GameObject cardPrefab;      
     public Transform handArea;         // Kartların dizileceği yer (HandArea)
-    public List<CardData> desteListesi; // Oyuna başlarken sahip olduğun tüm kartlar
+    
+    // YENİ: Hanedanlara özel başlangıç desteleri
+    public List<CardData> starkBaslangicDestesi;
+    public List<CardData> lannisterBaslangicDestesi;
+    
+    // Oyun başladığında seçilen hanedanın kartlarını buraya dolduracağız
+    private List<CardData> oyundakiAnaDeste = new List<CardData>();
+    
     private List<CardData> cekmeDestesi = new List<CardData>();
     private List<CardData> atikDestesi = new List<CardData>();
     private List<GameObject> eldekiKartObjeleri = new List<GameObject>();
@@ -39,6 +46,11 @@ public class GameManager : MonoBehaviour
     public List<CardData> tumKartHavuzu; // Oyundaki düşürülünebilecek tüm kartların deposu
     public GameObject odulPaneli; // Savaş bitince ekrana çıkacak siyah kararık alan
     public Transform odulKartlariAlani; // İçinde 3 tane kart Prefab'ının belireceği "Layout Group" alanı
+
+    [Header("İncele (Inspect) Sistemi")]
+    public GameObject incelePaneli;
+    public TMPro.TextMeshProUGUI inceleBaslikYazisi;
+    public TMPro.TextMeshProUGUI inceleIcerikYazisi;
 
     public CardData secilenKart;
     public GameObject secilenKartinObjesi;
@@ -85,7 +97,10 @@ public class GameManager : MonoBehaviour
         }
 
         // 2- Oyun başında desteyi hazırla ve turu başlat
-        cekmeDestesi.AddRange(desteListesi);
+        if (seciliHanedan == HanedanTipi.Stark) oyundakiAnaDeste.AddRange(starkBaslangicDestesi);
+        else if (seciliHanedan == HanedanTipi.Lannister) oyundakiAnaDeste.AddRange(lannisterBaslangicDestesi);
+        
+        cekmeDestesi.AddRange(oyundakiAnaDeste);
         DesteKaristir(cekmeDestesi);
         YeniTurBaslat(); // İlk tur başlasın
     }
@@ -193,10 +208,24 @@ public class GameManager : MonoBehaviour
     {
         if (secilenKart != null && secilenKartinObjesi != null)
         {
-            // Eski "Milis Eğit" if() bloğunu ve makroOrduListesi eklemelerini kaldırdık.
-            // Ordunun içeriğini dodurma işi artık haritada piyonu yaratırken MapController tarafından yapılıyor.
+            // YENİ EKLENEN MEKANİK 1: KART ÇEKME
+            if (secilenKart.cekilecekKartSayisi > 0)
+            {
+                KartCek(secilenKart.cekilecekKartSayisi);
+                Debug.Log($"{secilenKart.kartAdi} oynandı, {secilenKart.cekilecekKartSayisi} kart çekildi!");
+            }
 
-            atikDestesi.Add(secilenKart); // Kartı sonsuza dek silme, atık destesine koy!
+            // YENİ EKLENEN MEKANİK 2: TÜKET (EXHAUST)
+            if (secilenKart.isTuketimKarti)
+            {
+                // Tüketim kartları atık destesine girmez, bu tur için tamamen oyundan silinir!
+                Debug.Log($"{secilenKart.kartAdi} TÜKETİLDİ! (Atık destesine dönmeyecek)");
+            }
+            else
+            {
+                atikDestesi.Add(secilenKart); // Kartı sonsuza dek silme, atık destesine koy!
+            }
+
             eldekiKartObjeleri.Remove(secilenKartinObjesi); // Hata almamak için kartı elimizdeki listeden çıkar.
             Destroy(secilenKartinObjesi); // Ekrandan yok et.
             
@@ -235,7 +264,7 @@ public class GameManager : MonoBehaviour
     public void OdulKartiniSec(CardData secilenOdul)
     {
         // 1. Kartı kalıcı destene eklersin (Böylece oyunu ileride kaydetsen bile hep seninle kalır)
-        desteListesi.Add(secilenOdul);
+        oyundakiAnaDeste.Add(secilenOdul);
         
         // 2. SLAY THE SPIRE KURALI: Kazanılan yeni kart, senin mevcut eline (veya çekme destene) gelmez. Direkt ATIK DESTESİNE gider.
         // Deste karıştırıldığında eline gelme şansı başlar.
@@ -250,6 +279,41 @@ public class GameManager : MonoBehaviour
     {
         // Hiçbir şey eklemeden sadece pencereyi kapat
         odulPaneli.SetActive(false);
-        Debug.Log("Ödül geçildi. Deste aynen kaldı.");
+        Debug.Log("Ödül alınmadan geçildi.");
+    }
+
+    // --- YENİ: İNCELE (INSPECT) SİSTEMİ ---
+    public void IncelePaneliniAc(GameObject hedefObj)
+    {
+        if (incelePaneli == null) return; // Panel henüz atanmadıysa hata verme
+        
+        incelePaneli.SetActive(true);
+        ArmyStats ordu = hedefObj.GetComponent<ArmyStats>();
+        MakroKale kale = hedefObj.GetComponent<MakroKale>();
+
+        if (ordu != null)
+        {
+            inceleBaslikYazisi.text = (ordu.dusmanMi ? "Düşman Ordusu " : "Dost Ordu ") + $"({ordu.mevcutCan}/{ordu.maxCan})";
+            
+            string icerik = "Birliğin İçindekiler:\n\n";
+            foreach (string birlik in ordu.icindekiBirlikler)
+            {
+                icerik += $"- {birlik}\n";
+            }
+            if (ordu.icindekiBirlikler.Count == 0) icerik += "- (Boş)\n";
+            
+            icerik += $"\nHasar Gücü: {ordu.hasarGucu}\nİntikal: {ordu.hareketMenzili}";
+            inceleIcerikYazisi.text = icerik;
+        }
+        else if (kale != null)
+        {
+            inceleBaslikYazisi.text = "Kale Bilgisi";
+            inceleIcerikYazisi.text = $"Kapı Canı: {kale.kapiCani} / {kale.maxKapiCani}";
+        }
+    }
+
+    public void IncelePaneliniKapat()
+    {
+        if (incelePaneli != null) incelePaneli.SetActive(false);
     }
 }
