@@ -682,6 +682,9 @@ MonoBehaviour:
   tumBirimlerVeritabani:
   - {fileID: 11400000, guid: a30881cfa06b1404fb685315dfc9e412, type: 2}
   - {fileID: 11400000, guid: a8f7c76a057386f4da72de51b5347d3b, type: 2}
+  - {fileID: 11400000, guid: 68158cd848b5bb746a2749f3a437b370, type: 2}
+  - {fileID: 11400000, guid: 021595acdccc8c64f9d84ddec2c84fc3, type: 2}
+  - {fileID: 11400000, guid: a61e8c9c6f2dcbe4fbc3b18925a7deef, type: 2}
   oyuncuBirimleri: []
   dusmanBirimleri: []
 --- !u!4 &872985915

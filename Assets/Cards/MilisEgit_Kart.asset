@@ -21,6 +21,8 @@ MonoBehaviour:
   - Piyade
   - Piyade
   - Balista
+  binaKartiMi: 0
+  insaEdilecekBina: 
   apBedeli: 1
   altinBedeli: 0
   tasBedeli: 0
@@ -29,3 +31,27 @@ MonoBehaviour:
   kazanilanTas: 0
   kazanilanYemek: 0
   kazanilanIntikal: 0
+  sinirdanAltinKazan: 0
+  sinirdanTasKazan: 0
+  sinirdanYemekKazan: 0
+  isTuketimKarti: 0
+  cekilecekKartSayisi: 0
+  orduHasarArtisi: 0
+  orduCanArtisi: 0
+  orduHareketHiziArtisi: 0
+  kaleKapiCaniArtisi: 0
+  kaleOkcuHasariArtisi: 0
+  kendiOrdunuFedaEt: 0
+  ordununKopyasiniUret: 0
+  ekHareketHakki: 0
+  dusmanHareketEngelle: 0
+  dusmanIntikalSifirla: 0
+  dusmanBirlikYokEt: 0
+  dusmanOrduyuCal: 0
+  kaleyeHasarVer: 0
+  sart3AltinHarcandiysaBonus: 0
+  sartKuvvetliKaleVarsaBonus: 0
+  zorlaTahsilatEfekti: 0
+  relicVerir: 0
+  desteyeLanetKartiEkle: 0
+  rakipDesteSabotaji: 0

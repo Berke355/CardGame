@@ -16,7 +16,7 @@ MonoBehaviour:
   tur: 0
   aciklama: "S\u0131n\u0131rlar\u0131n i\xE7indeki bir alt\u0131gende 1 Piyade birli\u011Fi
     olu\u015Ftur."
-  orduKartiMi: 0
+  orduKartiMi: 1
   uretilecekBirlikler: []
   binaKartiMi: 0
   insaEdilecekBina: 

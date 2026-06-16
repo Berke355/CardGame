@@ -15,8 +15,12 @@ MonoBehaviour:
   birimAdi: Balista
   birimGorseli: {fileID: -6255568789289567553, guid: cba800045b721974ba4854c0c950efed, type: 3}
   maxCan: 1
-  hasar: 2
-  zirhDegeri: 1
-  isabetDegeri: 5
+  hasar: 4
+  zirhDegeri: 8
+  isabetDegeri: 2
+  isBina: 0
+  askerlereHasarVurabilirMi: 1
+  binaHasarCari: 1
+  binayaEkstraHasar: 0
   hareketMenzili: 1
-  saldiriMenzili: 4
+  saldiriMenzili: 5

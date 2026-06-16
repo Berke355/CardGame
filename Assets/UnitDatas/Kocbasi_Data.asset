@@ -10,17 +10,17 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f724ba1cf41fbac41b226311d23f57f1, type: 3}
-  m_Name: KaleKapisi_Data
+  m_Name: Kocbasi_Data
   m_EditorClassIdentifier: Assembly-CSharp::UnitData
-  birimAdi: "Kale Kap\u0131s\u0131"
-  birimGorseli: {fileID: -6754239384357436178, guid: a7c7bf71daa0d104f8f4b0f327ff4041, type: 3}
-  maxCan: 1
+  birimAdi: "Ko\xE7ba\u015F\u0131"
+  birimGorseli: {fileID: 2679152750657118511, guid: 5475a2b6c1cdeaf45bdb50bcf22b0ae7, type: 3}
+  maxCan: 6
   hasar: 0
-  zirhDegeri: 1
-  isabetDegeri: 0
-  isBina: 1
-  askerlereHasarVurabilirMi: 1
-  binaHasarCari: 0
-  binayaEkstraHasar: 0
-  hareketMenzili: 0
-  saldiriMenzili: 0
+  zirhDegeri: 13
+  isabetDegeri: 1
+  isBina: 0
+  askerlereHasarVurabilirMi: 0
+  binaHasarCari: 1
+  binayaEkstraHasar: 5
+  hareketMenzili: 1
+  saldiriMenzili: 1

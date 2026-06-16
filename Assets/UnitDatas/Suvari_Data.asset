@@ -10,17 +10,17 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f724ba1cf41fbac41b226311d23f57f1, type: 3}
-  m_Name: KaleKapisi_Data
+  m_Name: Suvari_Data
   m_EditorClassIdentifier: Assembly-CSharp::UnitData
-  birimAdi: "Kale Kap\u0131s\u0131"
-  birimGorseli: {fileID: -6754239384357436178, guid: a7c7bf71daa0d104f8f4b0f327ff4041, type: 3}
-  maxCan: 1
-  hasar: 0
-  zirhDegeri: 1
-  isabetDegeri: 0
-  isBina: 1
+  birimAdi: "S\xFCvari"
+  birimGorseli: {fileID: -5873510065912966714, guid: f22d56d260bc5f244aecd8518ce97acd, type: 3}
+  maxCan: 2
+  hasar: 1
+  zirhDegeri: 15
+  isabetDegeri: 3
+  isBina: 0
   askerlereHasarVurabilirMi: 1
   binaHasarCari: 0
   binayaEkstraHasar: 0
-  hareketMenzili: 0
-  saldiriMenzili: 0
+  hareketMenzili: 5
+  saldiriMenzili: 1

@@ -228,6 +228,13 @@ public class BattleManager : MonoBehaviour
     // İŞTE MEŞHUR D&D ZAR VE HASAR SİSTEMİ
     public void SaldiriGerceklestir(BattleUnit saldiran, BattleUnit savunan)
     {
+        // YENİ KURAL: Koçbaşı birimlere dalamaz
+        if (!saldiran.veri.askerlereHasarVurabilirMi && !savunan.veri.isBina)
+        {
+            Debug.Log($"HATA: {saldiran.veri.birimAdi} sadece binalara saldırabilir!");
+            return; // Hasar vurmadan çık
+        }
+
         // 1 ile 20 arası rastgele zar at (21 dahil değil)
         int d20 = Random.Range(1, 21); 
         int toplamSaldiriGucu = d20 + saldiran.veri.isabetDegeri;
@@ -235,12 +242,22 @@ public class BattleManager : MonoBehaviour
         Debug.Log($"--- SAVAŞ: {saldiran.veri.birimAdi} -> {savunan.veri.birimAdi} hedefine saldırıyor! ---");
         Debug.Log($"Zar (1d20): {d20} + İsabet: {saldiran.veri.isabetDegeri} = TOPLAM: {toplamSaldiriGucu}");
 
-        // Toplam güç, savunanın zırhından (AC) büyük mü?
-        if (toplamSaldiriGucu > savunan.veri.zirhDegeri)
+        // Toplam güç, savunanın zırhından (AC) büyük mü? VEYA natürel 20 mi geldi (Kritik vuruş)?
+        if (toplamSaldiriGucu > savunan.veri.zirhDegeri || d20 == 20)
         {
-            savunan.mevcutCan -= saldiran.veri.hasar;
+            int verilecekHasar = saldiran.veri.hasar;
+
+            // YENİ KURAL: Hedef bina ise Koçbaşı x2 ve ekstra hasar vurur
+            if (savunan.veri.isBina && saldiran.veri.binaHasarCari)
+            {
+                verilecekHasar += saldiran.veri.binayaEkstraHasar;
+                verilecekHasar *= 2; 
+                Debug.Log($"[KUŞATMA!] {saldiran.veri.birimAdi} binaya ekstra hasar vurdu! Toplam Hasar: {verilecekHasar}");
+            }
+
+            savunan.mevcutCan -= verilecekHasar;
             savunan.CaniGuncelle();
-            Debug.Log($"💥 VURUŞ BAŞARILI! Savunanın Zırhı ({savunan.veri.zirhDegeri}) aşıldı. Kalan Can: {savunan.mevcutCan}");
+            Debug.Log($"💥 VURUŞ BAŞARILI! Savunanın Zırhı ({savunan.veri.zirhDegeri}) aşıldı. Verilen Hasar: {verilecekHasar}. Kalan Can: {savunan.mevcutCan}");
 
             if (savunan.mevcutCan <= 0)
             {
