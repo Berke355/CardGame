@@ -65,7 +65,16 @@ public class CardDisplay : MonoBehaviour
                 {
                     if (kartVerisi.sinirdanAltinKazan) topraktanAltin = mapController.SinirlarIcindekiTileSayisi(mapController.altinTile);
                     if (kartVerisi.sinirdanTasKazan) topraktanTas = mapController.SinirlarIcindekiTileSayisi(mapController.tasTile);
-                    if (kartVerisi.sinirdanYemekKazan) topraktanYemek = mapController.SinirlarIcindekiTileSayisi(mapController.ormanTile);
+                    if (kartVerisi.sinirdanYemekKazan) 
+                    {
+                        topraktanYemek = mapController.SinirlarIcindekiTileSayisi(mapController.ormanTile);
+                        
+                        // YENİ: Stark Pasifi
+                        if (GameManager.Instance != null && GameManager.Instance.seciliHanedan == GameManager.HanedanTipi.Stark)
+                        {
+                            topraktanYemek *= 2; // Starklar Ormanlardan x2 yemek alır!
+                        }
+                    }
                 }
 
                 // 1. Bedeli Öde

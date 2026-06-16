@@ -4,6 +4,12 @@ using UnityEngine.UI;
 
 public class GameManager : MonoBehaviour
 {
+    public enum HanedanTipi { Belirsiz, Stark, Lannister }
+    
+    [Header("Hanedan Ayarları")]
+    public HanedanTipi seciliHanedan = HanedanTipi.Belirsiz;
+    public GameObject hanedanSecimPaneli;
+
     public static GameManager Instance;
 
     [Header("Oyuncu Kaynakları")]
@@ -45,7 +51,40 @@ public class GameManager : MonoBehaviour
 
     void Start()
     {
-        // Oyun başında desteyi hazırla
+        // YENİ: Oyun başladığında UI panelini aç, oyun döngüsünü durdur.
+        if (hanedanSecimPaneli != null)
+        {
+            hanedanSecimPaneli.SetActive(true);
+        }
+    }
+
+    public void HanedanSec(int hanedanIndex)
+    {
+        seciliHanedan = (HanedanTipi)hanedanIndex;
+        
+        if (hanedanSecimPaneli != null)
+        {
+            hanedanSecimPaneli.SetActive(false);
+        }
+
+        if (seciliHanedan == HanedanTipi.Lannister)
+        {
+            altin += 5; // Lannister pasifi: Diğerlerinden 5 altın fazla başlar
+            Debug.Log("[HANEDAN] Lannister seçildi: +5 Bonus Altın!");
+        }
+        else if (seciliHanedan == HanedanTipi.Stark)
+        {
+            Debug.Log("[HANEDAN] Stark seçildi: Ormanlardan (Hasat) x2 Yemek Pasifi aktif!");
+        }
+
+        // 1- Haritayı Üret
+        MapController mapCtrl = Object.FindAnyObjectByType<MapController>();
+        if (mapCtrl != null)
+        {
+            mapCtrl.OyunuBaslat();
+        }
+
+        // 2- Oyun başında desteyi hazırla ve turu başlat
         cekmeDestesi.AddRange(desteListesi);
         DesteKaristir(cekmeDestesi);
         YeniTurBaslat(); // İlk tur başlasın

@@ -47,7 +47,7 @@ public class MapController : MonoBehaviour
     private List<GameObject> aktifMenziller = new List<GameObject>(); 
     private GameObject secilenBirlik; 
 
-    void Start()
+    public void OyunuBaslat()
     {
         if(haritaUret) HaritaUret(); // YENİ: Başkentten önce haritayı çiz
 
