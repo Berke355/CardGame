@@ -26,7 +26,7 @@ MonoBehaviour:
   kazanilanAltin: 0
   kazanilanTas: 0
   kazanilanYemek: 0
-  kazanilanIntikal: 1
+  kazanilanIntikal: 10
   sinirdanAltinKazan: 0
   sinirdanTasKazan: 0
   sinirdanYemekKazan: 0

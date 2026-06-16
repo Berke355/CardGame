@@ -16,6 +16,9 @@ public class MapController : MonoBehaviour
     public GameObject koyPrefab; // YENİ: Oyuncunun Köy Prefabı
     public GameObject haydutKampiPrefab; // YENİ: Haritada rastgele çıkacak haydut kampı
     
+    [Header("Event Sistemi (Etkileşimler)")]
+    public GameObject soruIsaretiPrefab; // YENİ: Haritada rastgele çıkacak gizemli eventler
+    
     [Header("Prosedürel Harita (PCG)")]
     public bool haritaUret = true;
     public int haritaGenisligi = 40;
@@ -56,6 +59,7 @@ public class MapController : MonoBehaviour
         BaskentKur();
         DusmanYapayZekasiniKur(); // YENİ: Düşman AI kalesini kur
         HaydutKamplariniKoy(); // YENİ: Haydutları oyuncunun yanına düşmesin diye sona aldık
+        SoruIsaretleriniKoy(); // YENİ: Eventleri haritaya serpiştir
         // Cihazı yormadan her 0.2 saniyede bir sisleri ve sınırları kontrol et (Yürüdükçe açılsın diye)
         InvokeRepeating("SinirlariVeSisiGuncelle", 0.1f, 0.2f);
     }
@@ -291,6 +295,7 @@ public class MapController : MonoBehaviour
                     GameObject tiklananKoy = null;
                     GameObject tiklananHaydut = null;
                     GameObject tiklananBirlik = null; // YENİ
+                    GameObject tiklananSoruIsareti = null; // YENİ
 
                     foreach (Collider2D obje in buradakiler)
                     {
@@ -298,6 +303,7 @@ public class MapController : MonoBehaviour
                         else if (obje.CompareTag("Koy") || obje.GetComponent<MakroKoy>() != null) { tiklananKoy = obje.gameObject; }
                         else if (obje.CompareTag("Haydut") || obje.GetComponent<HaydutKampi>() != null) { tiklananHaydut = obje.gameObject; }
                         else if (obje.CompareTag("Unit")) { tiklananBirlik = obje.gameObject; }
+                        else if (obje.CompareTag("SoruIsareti")) { tiklananSoruIsareti = obje.gameObject; }
                     }
 
                     // --- YENİ EKLENEN: İNCELE (INSPECT) MANTIĞI ---
@@ -341,7 +347,21 @@ public class MapController : MonoBehaviour
 
                         if (isKesif)
                         {
-                            if (tiklananHaydut != null)
+                            if (tiklananSoruIsareti != null)
+                            {
+                                float mesafe = Vector2.Distance(secilenBirlik.transform.position, tiklananSoruIsareti.transform.position);
+                                if (mesafe <= 1.5f)
+                                {
+                                    if (EventManager.Instance != null) EventManager.Instance.EventPaneliniAc(secilenBirlik, tiklananSoruIsareti);
+                                    return;
+                                }
+                                else
+                                {
+                                    Debug.Log("HATA: Olayı incelemek için yanına kadar yürümelisin!");
+                                    return;
+                                }
+                            }
+                            else if (tiklananHaydut != null)
                             {
                                 float mesafe = Vector2.Distance(secilenBirlik.transform.position, tiklananHaydut.transform.position);
                                 if (mesafe <= 1.5f)
@@ -1289,5 +1309,47 @@ public class MapController : MonoBehaviour
             }
         }
         return sayac;
+    }
+
+    // YENİ EKLENEN: Soru İşareti Eventlerini haritaya yerleştirme
+    void SoruIsaretleriniKoy()
+    {
+        if (soruIsaretiPrefab == null || hexTilemap == null) return;
+        
+        BoundsInt bounds = hexTilemap.cellBounds;
+        List<Vector3Int> bosCimenler = new List<Vector3Int>();
+
+        // Tüm boş çimenleri bul
+        foreach (var pos in bounds.allPositionsWithin)
+        {
+            if (hexTilemap.HasTile(pos) && hexTilemap.GetTile(pos) == cimenTile)
+            {
+                // Bizim veya düşmanın kalesine çok yakın olmasın (sınırların içinde olmasın)
+                if (bizimSinirlar.Contains(pos) || dusmanSinirlar.Contains(pos)) continue;
+
+                // Üstünde başka bir obje var mı?
+                Vector3 dunyaKonumu = hexTilemap.GetCellCenterWorld(pos);
+                Collider2D cakisan = Physics2D.OverlapCircle(dunyaKonumu, 0.2f);
+                if (cakisan == null)
+                {
+                    bosCimenler.Add(pos);
+                }
+            }
+        }
+
+        // Rastgele 6-8 arası soru işareti koy
+        int soruIsaretiSayisi = Random.Range(6, 9);
+        for (int i = 0; i < soruIsaretiSayisi; i++)
+        {
+            if (bosCimenler.Count == 0) break;
+            
+            int rastgeleIndex = Random.Range(0, bosCimenler.Count);
+            Vector3Int secilenKare = bosCimenler[rastgeleIndex];
+            
+            GameObject yeniSoruIsareti = Instantiate(soruIsaretiPrefab, hexTilemap.GetCellCenterWorld(secilenKare), Quaternion.identity);
+            yeniSoruIsareti.tag = "SoruIsareti"; 
+            
+            bosCimenler.RemoveAt(rastgeleIndex); // Aynı yere birden fazla koymamak için
+        }
     }
 }

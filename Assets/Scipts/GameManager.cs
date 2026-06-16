@@ -36,7 +36,7 @@ public class GameManager : MonoBehaviour
     
     private List<CardData> cekmeDestesi = new List<CardData>();
     private List<CardData> atikDestesi = new List<CardData>();
-    private List<GameObject> eldekiKartObjeleri = new List<GameObject>();
+    public List<GameObject> eldekiKartObjeleri = new List<GameObject>(); // YENİ: EventManager'ın erişebilmesi için public yapıldı
 
     [Header("Panic Button Ayarları")]
     public bool panicKullanildi = false;
