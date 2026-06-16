@@ -383,41 +383,112 @@ public class MapController : MonoBehaviour
                                     return;
                                 }
                             }
-                        }
-                        
-                        // 1.2 NORMAL ORDU İSE VE KALEYE TIKLANDIYSA (Mikro Savaş Başlat)
-                        if (tiklananKale != null && !isKesif)
-                        {
-                            // Birliğin, kalenin 'yan tile'ında olup olmadığını (mesafeyi) kontrol ediyoruz
-                            float mesafe = Vector2.Distance(secilenBirlik.transform.position, tiklananKale.transform.position);
-                            
-                            // 1.5f mesafe, bitişik hex (altıgen) sınırları için idealdir
-                            if (mesafe <= 1.5f) 
+                            else if (tiklananBirlik != null)
                             {
-                                Debug.Log("⚔️ Yakın temas! Kaleye saldırı emri verildi!");
-                                if (SavasHafizasi.Instance != null)
+                                ArmyStats hedefStats = tiklananBirlik.GetComponent<ArmyStats>();
+                                if (hedefStats != null && hedefStats.dusmanMi)
                                 {
-                                    SavasHafizasi.Instance.savasaGirecekOrdu.Clear();
-                                    
-                                    ArmyStats seciliOrduStat = secilenBirlik.GetComponent<ArmyStats>();
-                                    if (seciliOrduStat != null)
+                                    if (hedefStats.icindekiBirlikler.Contains("Kesif") || hedefStats.icindekiBirlikler.Contains("Gocmen"))
                                     {
-                                        SavasHafizasi.Instance.savasaGirecekOrdu.AddRange(seciliOrduStat.icindekiBirlikler);
-                                        SavasHafizasi.Instance.savasanBizimOrdu = secilenBirlik;
+                                        float mesafe = Vector2.Distance(secilenBirlik.transform.position, tiklananBirlik.transform.position);
+                                        if (mesafe <= 1.5f)
+                                        {
+                                            if (MakroSavasManager.Instance != null) MakroSavasManager.Instance.SavasiBaslat(secilenBirlik, tiklananBirlik, 10);
+                                            return;
+                                        }
+                                        else
+                                        {
+                                            Debug.Log("HATA: Düşman Keşif birliğine saldırmak için yanına kadar yürümelisin!");
+                                            return;
+                                        }
                                     }
-                                    
-                                    Vector3Int kaleGride = hexTilemap.WorldToCell(tiklananKale.transform.position);
-                                    string biyomAdi = "";
-                                    if (hexTilemap.HasTile(kaleGride)) biyomAdi = hexTilemap.GetTile(kaleGride).name;
-
-                                    SavasHafizasi.Instance.SavasiBaslat(tiklananKale, biyomAdi);
+                                    else
+                                    {
+                                        Debug.Log("HATA: Keşif birlikleri normal ordulara saldıramaz!");
+                                        return;
+                                    }
                                 }
                             }
-                            else
+                        }
+                        
+                        // 1.2 NORMAL ORDU İSE (Mikro Savaş Başlat)
+                        if (!isKesif)
+                        {
+                            if (tiklananKale != null)
                             {
-                                Debug.Log("HATA: Kaleye sağ tıklandı fakat seçili ordu uzakta! Önce kalenin yanına kadar yürümelisin.");
+                                // Birliğin, kalenin 'yan tile'ında olup olmadığını (mesafeyi) kontrol ediyoruz
+                                float mesafe = Vector2.Distance(secilenBirlik.transform.position, tiklananKale.transform.position);
+                                
+                                // 1.5f mesafe, bitişik hex (altıgen) sınırları için idealdir
+                                if (mesafe <= 1.5f) 
+                                {
+                                    Debug.Log("⚔️ Yakın temas! Kaleye saldırı emri verildi!");
+                                    if (SavasHafizasi.Instance != null)
+                                    {
+                                        SavasHafizasi.Instance.savasaGirecekOrdu.Clear();
+                                        
+                                        ArmyStats seciliOrduStat = secilenBirlik.GetComponent<ArmyStats>();
+                                        if (seciliOrduStat != null)
+                                        {
+                                            SavasHafizasi.Instance.savasaGirecekOrdu.AddRange(seciliOrduStat.icindekiBirlikler);
+                                            SavasHafizasi.Instance.savasanBizimOrdu = secilenBirlik;
+                                        }
+                                        
+                                        Vector3Int kaleGride = hexTilemap.WorldToCell(tiklananKale.transform.position);
+                                        string biyomAdi = "";
+                                        if (hexTilemap.HasTile(kaleGride)) biyomAdi = hexTilemap.GetTile(kaleGride).name;
+
+                                        SavasHafizasi.Instance.SavasiBaslat(tiklananKale, biyomAdi);
+                                    }
+                                }
+                                else
+                                {
+                                    Debug.Log("HATA: Kaleye sağ tıklandı fakat seçili ordu uzakta! Önce kalenin yanına kadar yürümelisin.");
+                                }
+                                return; 
                             }
-                            return; 
+                            else if (tiklananBirlik != null)
+                            {
+                                ArmyStats hedefStats = tiklananBirlik.GetComponent<ArmyStats>();
+                                if (hedefStats != null && hedefStats.dusmanMi)
+                                {
+                                    if (!hedefStats.icindekiBirlikler.Contains("Kesif") && !hedefStats.icindekiBirlikler.Contains("Gocmen"))
+                                    {
+                                        float mesafe = Vector2.Distance(secilenBirlik.transform.position, tiklananBirlik.transform.position);
+                                        if (mesafe <= 1.5f) 
+                                        {
+                                            Debug.Log("⚔️ Yakın temas! Düşman ordusuna saldırı emri verildi!");
+                                            if (SavasHafizasi.Instance != null)
+                                            {
+                                                SavasHafizasi.Instance.savasaGirecekOrdu.Clear();
+                                                
+                                                ArmyStats seciliOrduStat = secilenBirlik.GetComponent<ArmyStats>();
+                                                if (seciliOrduStat != null)
+                                                {
+                                                    SavasHafizasi.Instance.savasaGirecekOrdu.AddRange(seciliOrduStat.icindekiBirlikler);
+                                                    SavasHafizasi.Instance.savasanBizimOrdu = secilenBirlik;
+                                                }
+                                                
+                                                Vector3Int gridPos = hexTilemap.WorldToCell(tiklananBirlik.transform.position);
+                                                string biyomAdi = "";
+                                                if (hexTilemap.HasTile(gridPos)) biyomAdi = hexTilemap.GetTile(gridPos).name;
+
+                                                SavasHafizasi.Instance.SavasiBaslat(tiklananBirlik, biyomAdi);
+                                            }
+                                        }
+                                        else
+                                        {
+                                            Debug.Log("HATA: Düşman ordusuna saldırmak için yanına kadar yürümelisin.");
+                                        }
+                                        return; 
+                                    }
+                                    else
+                                    {
+                                        Debug.Log("HATA: Ordular, keşif birlikleriyle etkileşime giremez!");
+                                        return;
+                                    }
+                                }
+                            }
                         }
                     }
 
@@ -705,7 +776,8 @@ public class MapController : MonoBehaviour
                                         if (oynanacakKart.dusmanOrduyuCal && orduStats.dusmanMi)
                                         {
                                             orduStats.dusmanMi = false; // Taraf değiştir
-                                            // Rengini vb. değiştirebiliriz ama şimdilik mantık yeterli
+                                            SpriteRenderer sr = orduStats.GetComponent<SpriteRenderer>();
+                                            if (sr != null) sr.color = Color.white; // Rengi normale çevir
                                             Debug.Log("Düşman ordusu taraf değiştirdi!");
                                         }
                                         if (oynanacakKart.ekHareketHakki > 0 && !orduStats.dusmanMi)
