@@ -33,7 +33,17 @@ public class BattleUnit : MonoBehaviour
         
         if (veri.birimGorseli != null)
         {
-            GetComponent<SpriteRenderer>().sprite = veri.birimGorseli;
+            SpriteRenderer sr = GetComponent<SpriteRenderer>();
+            sr.sprite = veri.birimGorseli;
+            
+            // YENİ: Görselin haritadan taşmasını engellemek için otomatik ölçekleme
+            float maxGorselBoyutu = Mathf.Max(sr.sprite.bounds.size.x, sr.sprite.bounds.size.y);
+            if (maxGorselBoyutu > 0)
+            {
+                // Hedef boyut 0.8 birim (karelerin içine tam oturup hafif boşluk bırakması için)
+                float hedefBoyut = 0.8f;
+                transform.localScale = Vector3.one * (hedefBoyut / maxGorselBoyutu);
+            }
         }
 
         // YENİ: Asker doğar doğmaz can yazısını güncelle

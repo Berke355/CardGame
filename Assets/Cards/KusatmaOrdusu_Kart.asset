@@ -10,20 +10,22 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a41b7185e7cd7a2478a85a42dd6bd815, type: 3}
-  m_Name: Lannister_MilisEgit
+  m_Name: KusatmaOrdusu_Kart
   m_EditorClassIdentifier: Assembly-CSharp::CardData
-  kartAdi: "Milis E\u011Fit"
+  kartAdi: "Kuşatma Ordusu"
   tur: 0
-  aciklama: "S\u0131n\u0131rlar\u0131n i\xE7indeki bir alt\u0131gende 1 Piyade birli\u011Fi
-    olu\u015Ftur."
+  aciklama: "Kalenizin sınırlarına kaleleri yıkmak üzere tasarlanmış 1 Koçbaşı, 1 Balista ve 1 Piyadeden oluşan ağır bir ordu kurar."
   orduKartiMi: 1
-  uretilecekBirlikler: []
+  uretilecekBirlikler:
+  - Koçbaşı
+  - Balista
+  - Piyade
   binaKartiMi: 0
   insaEdilecekBina: 
-  apBedeli: 1
+  apBedeli: 2
   altinBedeli: 0
-  tasBedeli: 0
-  yemekBedeli: 5
+  tasBedeli: 10
+  yemekBedeli: 10
   kazanilanAltin: 0
   kazanilanTas: 0
   kazanilanYemek: 0

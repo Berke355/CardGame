@@ -3654,7 +3654,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -1.4216, y: 1.1936035}
+  m_AnchoredPosition: {x: -1.4216309, y: 1.1936035}
   m_SizeDelta: {x: -46.5904, y: -41.7451}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1566339066
@@ -3982,7 +3982,6 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 9a5e8bfa0d23bb640b999189c70d9450, type: 2}
   - {fileID: 11400000, guid: 26b1b053030305244b9bcc1c96c7b201, type: 2}
   - {fileID: 11400000, guid: 35778040e4376b548aeb429a3f9d7c23, type: 2}
-  - {fileID: 11400000, guid: 335eae98e7ad8464b8271e6e212b2d55, type: 2}
   - {fileID: 11400000, guid: 7b091555591eb05428895ae1c7d8a129, type: 2}
   - {fileID: 11400000, guid: 857ec68485f8d854bbdc06db54b5f045, type: 2}
   - {fileID: 11400000, guid: dc01ba49e8fd5c94db91c4a9299d6fa9, type: 2}
@@ -3991,13 +3990,16 @@ MonoBehaviour:
   - {fileID: 11400000, guid: ace7c5a1ae935cc4d9b903807b59ddc5, type: 2}
   - {fileID: 11400000, guid: ace7c5a1ae935cc4d9b903807b59ddc5, type: 2}
   - {fileID: 11400000, guid: ace7c5a1ae935cc4d9b903807b59ddc5, type: 2}
+  - {fileID: 11400000, guid: c6ce51b0a229dbf40be10f0c7f87ebda, type: 2}
+  - {fileID: 11400000, guid: 37431def9ac60f544992b6ffb793a3d2, type: 2}
+  - {fileID: 11400000, guid: 0fac7276f9390c647811ae096480ed77, type: 2}
+  - {fileID: 11400000, guid: c685d6ba1e5952b428e9342fa6b13459, type: 2}
   lannisterBaslangicDestesi:
   - {fileID: 11400000, guid: fff9ffca2f15f654eaef22fb76392fab, type: 2}
   - {fileID: 11400000, guid: 2ae092c3e4cbf5144a9e10b2d547535a, type: 2}
   - {fileID: 11400000, guid: 576ced3eb5d2ca248b8d17e755f8c4cd, type: 2}
   - {fileID: 11400000, guid: a0bdd868ffebfc34aa2dc8fc7ba31050, type: 2}
   - {fileID: 11400000, guid: c8969116454a15d49aa4a1d5d885451b, type: 2}
-  - {fileID: 11400000, guid: 0d33f04120cb5ac418038e70d3be7021, type: 2}
   - {fileID: 11400000, guid: 0c5a56f6f929a72409a9e8e9c875bb9f, type: 2}
   - {fileID: 11400000, guid: d281f116f300b444d80205179786cc73, type: 2}
   - {fileID: 11400000, guid: 3435380e2eb742c4cb4be04cfb9e4b6f, type: 2}
@@ -4008,6 +4010,10 @@ MonoBehaviour:
   - {fileID: 11400000, guid: ace7c5a1ae935cc4d9b903807b59ddc5, type: 2}
   - {fileID: 11400000, guid: ace7c5a1ae935cc4d9b903807b59ddc5, type: 2}
   - {fileID: 11400000, guid: ace7c5a1ae935cc4d9b903807b59ddc5, type: 2}
+  - {fileID: 11400000, guid: c685d6ba1e5952b428e9342fa6b13459, type: 2}
+  - {fileID: 11400000, guid: c6ce51b0a229dbf40be10f0c7f87ebda, type: 2}
+  - {fileID: 11400000, guid: 37431def9ac60f544992b6ffb793a3d2, type: 2}
+  - {fileID: 11400000, guid: 0fac7276f9390c647811ae096480ed77, type: 2}
   eldekiKartObjeleri: []
   panicKullanildi: 0
   panicButton: {fileID: 1072582800}

@@ -18,8 +18,8 @@ MonoBehaviour:
     geni\u015Flet."
   orduKartiMi: 0
   uretilecekBirlikler: []
-  binaKartiMi: 0
-  insaEdilecekBina: 
+  binaKartiMi: 1
+  insaEdilecekBina: Kale
   apBedeli: 1
   altinBedeli: 0
   tasBedeli: 3

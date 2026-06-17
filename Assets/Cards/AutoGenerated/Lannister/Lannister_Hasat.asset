@@ -25,7 +25,7 @@ MonoBehaviour:
   yemekBedeli: 0
   kazanilanAltin: 0
   kazanilanTas: 0
-  kazanilanYemek: 3
+  kazanilanYemek: 0
   kazanilanIntikal: 0
   sinirdanAltinKazan: 0
   sinirdanTasKazan: 0

@@ -10,20 +10,22 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a41b7185e7cd7a2478a85a42dd6bd815, type: 3}
-  m_Name: Stark_SinirGenislet
+  m_Name: PiyadeOrdusu_Kart
   m_EditorClassIdentifier: Assembly-CSharp::CardData
-  kartAdi: "S\u0131n\u0131r Geni\u015Flet"
+  kartAdi: "Piyade Ordusu"
   tur: 0
-  aciklama: "S\u0131n\u0131rlar\u0131n\u0131 se\xE7ti\u011Fin y\xF6nde 1 alt\u0131gen
-    geni\u015Flet."
-  orduKartiMi: 0
-  uretilecekBirlikler: []
-  binaKartiMi: 1
-  insaEdilecekBina: Kale
+  aciklama: "Kalenizin sınırlarına 2 Piyade ve 1 Okçudan oluşan standart bir ordu kurar."
+  orduKartiMi: 1
+  uretilecekBirlikler:
+  - Piyade
+  - Piyade
+  - Okçu
+  binaKartiMi: 0
+  insaEdilecekBina: 
   apBedeli: 1
   altinBedeli: 0
-  tasBedeli: 3
-  yemekBedeli: 0
+  tasBedeli: 0
+  yemekBedeli: 6
   kazanilanAltin: 0
   kazanilanTas: 0
   kazanilanYemek: 0
