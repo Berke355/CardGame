@@ -4077,6 +4077,7 @@ MonoBehaviour:
   secenekB_Butonu: {fileID: 1958115137}
   secenekB_Yazisi: {fileID: 1818666911}
   piyadeKarti: {fileID: 11400000, guid: 0d0ee3f8597c2204093f9be8c034bbd8, type: 2}
+  okcuOrdusuKarti: {fileID: 11400000, guid: c6ce51b0a229dbf40be10f0c7f87ebda, type: 2}
 --- !u!1 &1818666909
 GameObject:
   m_ObjectHideFlags: 0

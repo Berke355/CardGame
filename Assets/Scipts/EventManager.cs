@@ -18,6 +18,7 @@ public class EventManager : MonoBehaviour
 
     [Header("Özel Kartlar (Unity'den Atanacak)")]
     public CardData piyadeKarti;
+    public CardData okcuOrdusuKarti; // YENİ: Gölgeler İçindeki Suikastçılar eventi için
 
     private GameObject aktifKesifBirligi;
     private GameObject aktifSoruIsareti;
@@ -39,8 +40,8 @@ public class EventManager : MonoBehaviour
         aktifKesifBirligi = kesifBirligi;
         aktifSoruIsareti = soruIsaretiObjesi;
         
-        // 0: Yabanıl Kampı, 1: Gizemli Tüccar, 2: Aç Kaçaklar
-        aktifEventID = Random.Range(0, 3);
+        // 0: Yabanıl Kampı, 1: Gizemli Tüccar, 2: Aç Kaçaklar, 3: Eski Kadim Tapınak, 4: Zehirli Bataklık, 5: Gölgeler İçindeki Suikastçılar
+        aktifEventID = Random.Range(0, 6);
         
         eventPaneli.SetActive(true);
 
@@ -79,6 +80,39 @@ public class EventManager : MonoBehaviour
 
             secenekB_Yazisi.text = "Kendi Hallerine Bırak\n(%50 İhtimalle 10 Altın kaybedersin)";
             secenekB_Butonu.onClick.AddListener(() => KacaklarB_Secildi());
+        }
+        else if (aktifEventID == 3)
+        {
+            eventBaslikYazisi.text = "Eski Kadim Tapınak";
+            eventHikayeYazisi.text = "Ormanın derinliklerinde kadim bir tapınak buldunuz. Sunak üzerinde değerli bir el yazması duruyor ancak etrafta kemikler ve lanet söylentileri var.";
+            
+            secenekA_Yazisi.text = "El Yazmasını Çal\n(3 yeni kart çekersin ama %50 ihtimalle elindeki tüm altınlar kül olur)";
+            secenekA_Butonu.onClick.AddListener(() => TapinakA_Secildi());
+
+            secenekB_Yazisi.text = "Sunağa Adak Ada\n(10 Yemek feda et, %100 ihtimalle 1 Kart çek)";
+            secenekB_Butonu.onClick.AddListener(() => TapinakB_Secildi());
+        }
+        else if (aktifEventID == 4)
+        {
+            eventBaslikYazisi.text = "Zehirli Bataklık";
+            eventHikayeYazisi.text = "Bir bataklığa saptınız ve atlar çamura saplanmaya başladı. Karşı tarafta batmış bir karavan ve sandıklar var ama oraya ulaşmak çok tehlikeli.";
+            
+            secenekA_Yazisi.text = "Gözünü Karart ve Bataklığa Gir\n(%60 ihtimalle 30 Altın ve 20 Taş bulursun | %40 ihtimalle Keşif Birliğin yok olur)";
+            secenekA_Butonu.onClick.AddListener(() => BataklikA_Secildi());
+
+            secenekB_Yazisi.text = "Etrafından Dolan\n(Risk almazsın ama 2 İntikal Puanı kaybedersin)";
+            secenekB_Butonu.onClick.AddListener(() => BataklikB_Secildi());
+        }
+        else if (aktifEventID == 5)
+        {
+            eventBaslikYazisi.text = "Gölgeler İçindeki Suikastçılar";
+            eventHikayeYazisi.text = "Gece kamp kurduğunuzda birliğinizin etrafını gölgeler sardı. Liderleri, onlara malzeme vermeniz karşılığında ordunuza katılacaklarını söylüyor.";
+            
+            secenekA_Yazisi.text = "25 Taş ve 10 Yemek Ver\n(Anlaşma sağlanır, eline 1 adet Okçu Ordusu Kartı gelir)";
+            secenekA_Butonu.onClick.AddListener(() => SuikastciA_Secildi());
+
+            secenekB_Yazisi.text = "Onlarla Savaş!\n(%30 ihtimalle yener 20 Altın/Yemek/Taş alırsın | %70 ihtimalle Birliğin yok edilir)";
+            secenekB_Butonu.onClick.AddListener(() => SuikastciB_Secildi());
         }
     }
 
@@ -187,5 +221,107 @@ public class EventManager : MonoBehaviour
             Debug.Log("Bir şey olmadı.");
         }
         OlayiBitir();
+    }
+    // --- ESKİ KADİM TAPINAK ETKİLERİ ---
+    private void TapinakA_Secildi()
+    {
+        int sans = Random.Range(0, 100);
+        if (sans < 50)
+        {
+            GameManager.Instance.KartCek(3);
+            Debug.Log("Başarılı! El yazmasından 3 yeni kart kazanıldı.");
+            OlayiBitir();
+        }
+        else
+        {
+            GameManager.Instance.altin = 0; // Tüm altınları kül olur
+            Debug.Log("Lanetlendiniz! Tüm altınlarınız küle dönüştü.");
+            OlayiBitir();
+        }
+    }
+
+    private void TapinakB_Secildi()
+    {
+        if (GameManager.Instance.yemek >= 10)
+        {
+            GameManager.Instance.yemek -= 10;
+            GameManager.Instance.KartCek(1);
+            Debug.Log("Adak kabul edildi, 1 Kart kazanıldı.");
+            OlayiBitir();
+        }
+        else
+        {
+            Debug.Log("Yeterli yemeğin yok!");
+        }
+    }
+
+    // --- ZEHİRLİ BATAKLIK ETKİLERİ ---
+    private void BataklikA_Secildi()
+    {
+        int sans = Random.Range(0, 100);
+        if (sans < 60)
+        {
+            GameManager.Instance.altin += 30;
+            GameManager.Instance.tas += 20;
+            Debug.Log("Başarılı! Sandıklardan 30 Altın ve 20 Taş çıktı.");
+            OlayiBitir();
+        }
+        else
+        {
+            BirligiOldur();
+        }
+    }
+
+    private void BataklikB_Secildi()
+    {
+        GameManager.Instance.intikalPuani = Mathf.Max(0, GameManager.Instance.intikalPuani - 2);
+        Debug.Log("Risk alınmadı ancak bataklık etrafından dolanmak 2 İntikal Puanına mal oldu.");
+        OlayiBitir();
+    }
+
+    // --- GÖLGELER İÇİNDEKİ SUİKASTÇILAR ETKİLERİ ---
+    private void SuikastciA_Secildi()
+    {
+        if (GameManager.Instance.tas >= 25 && GameManager.Instance.yemek >= 10)
+        {
+            GameManager.Instance.tas -= 25;
+            GameManager.Instance.yemek -= 10;
+            
+            if (okcuOrdusuKarti != null)
+            {
+                GameObject yeniKart = Instantiate(GameManager.Instance.cardPrefab, GameManager.Instance.handArea);
+                yeniKart.GetComponent<CardDisplay>().kartVerisi = okcuOrdusuKarti;
+                GameManager.Instance.eldekiKartObjeleri.Add(yeniKart);
+                Debug.Log("Anlaşma sağlandı! Okçu Ordusu kartı kazanıldı.");
+            }
+            else
+            {
+                // Eğer oyuncu okcuOrdusuKarti'ni Inspector'dan atamayı unutursa, fallback olarak 1 rastgele kart ver
+                GameManager.Instance.KartCek(1);
+                Debug.Log("Anlaşma sağlandı! 1 Kart çekildi. (Okçu Ordusu kartı Inspector'a atanmamış)");
+            }
+            OlayiBitir();
+        }
+        else
+        {
+            Debug.Log("Yeterli malzemen yok!");
+        }
+    }
+
+    private void SuikastciB_Secildi()
+    {
+        int sans = Random.Range(0, 100);
+        if (sans < 30)
+        {
+            GameManager.Instance.altin += 20;
+            GameManager.Instance.yemek += 20;
+            GameManager.Instance.tas += 20;
+            Debug.Log("Suikastçılar bozguna uğratıldı! 20 Altın, 20 Yemek, 20 Taş kazanıldı.");
+            OlayiBitir();
+        }
+        else
+        {
+            BirligiOldur();
+        }
     }
 }
