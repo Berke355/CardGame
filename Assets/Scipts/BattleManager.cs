@@ -207,9 +207,39 @@ public class BattleManager : MonoBehaviour
         }
 
         // --- DÜŞMANLARI YERLEŞTİRME ---
-        // Savaş başladığında karşımızda bir düşman olması şart. Şimdilik kodla doğuruyoruz.
-        BirimYarat(kaleKapisiVerisi, 8, 5, false); // Düşman Kale Kapısı (false = düşman)
-        BirimYarat(balistaVerisi, 8, 3, false);    // Düşman Balistası (false = düşman)
+        bool kaleyeMiSaliyoruz = false;
+        if (SavasHafizasi.Instance != null && SavasHafizasi.Instance.sonSavasilanObje != null)
+        {
+            if (SavasHafizasi.Instance.sonSavasilanObje.CompareTag("Kale") || SavasHafizasi.Instance.sonSavasilanObje.GetComponent<MakroKale>() != null)
+            {
+                kaleyeMiSaliyoruz = true;
+            }
+        }
+        else 
+        {
+            // SavasHafizasi yoksa direkt Scene test ediliyordur, varsayılan olarak Kale diyelim ki hata vermesin
+            kaleyeMiSaliyoruz = true; 
+        }
+
+        if (kaleyeMiSaliyoruz)
+        {
+            // Kale Kuşatması
+            BirimYarat(kaleKapisiVerisi, 8, 5, false); // Düşman Kale Kapısı
+            BirimYarat(balistaVerisi, 8, 3, false);    // Düşman Balistası
+        }
+        else
+        {
+            // Meydan Muharebesi (Düşman Ordusu)
+            // 2 Piyade ve 1 Okçu'dan oluşan bir savunma ordusu çıkartıyoruz
+            BirimYarat(piyadeVerisi, 8, 4, false);
+            BirimYarat(piyadeVerisi, 8, 6, false);
+            
+            UnitData dusmanOkcu = null;
+            foreach(var v in tumBirimlerVeritabani) { if(v != null && v.birimAdi == "Okçu") dusmanOkcu = v; }
+            
+            if (dusmanOkcu != null) BirimYarat(dusmanOkcu, 9, 5, false);
+            else BirimYarat(piyadeVerisi, 9, 5, false); // Failsafe: Okçu bulunamazsa piyade bas
+        }
     }
 
     void BirimYarat(UnitData veri, int x, int y, bool bizdenMi)
