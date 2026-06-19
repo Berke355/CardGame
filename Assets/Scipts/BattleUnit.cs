@@ -42,6 +42,13 @@ public class BattleUnit : MonoBehaviour
             else sr.flipX = false;
         }
 
+        // YENİ: Askerlerin her zaman ağaçların ve tepelerin (Tile'ların) ÜSTÜNDE görünmesini sağla
+        SpriteRenderer asilRenderer = GetComponent<SpriteRenderer>();
+        if (asilRenderer != null)
+        {
+            asilRenderer.sortingOrder = 10; // Zemin genelde 0 veya 1'dir. Askerler 10 katmanında en önde durur.
+        }
+
         // YENİ: Asker doğar doğmaz can yazısını güncelle
         CaniGuncelle();
     }

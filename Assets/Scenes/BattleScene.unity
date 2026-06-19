@@ -683,14 +683,15 @@ MonoBehaviour:
   savasSonuYazisi: {fileID: 1669487784}
   oyuncuTuru: 1
   savasBittiMi: 0
-  genislik: 10
-  yukseklik: 10
+  genislik: 15
+  yukseklik: 15
   tileBoyutu: 1.05
   biyomlar:
   - biyomAdi: Cimen
     tilePrefablari:
     - {fileID: 1142632828332446667, guid: c266373bffc4fea4493215fd6c264379, type: 3}
     - {fileID: 1142632828332446667, guid: c154ddc1e301b1d43a4164fb0d348d03, type: 3}
+    - {fileID: 1142632828332446667, guid: 8772ec50ba549b34489ef5f4bf5befd5, type: 3}
   varsayilanTilePrefab: {fileID: 1142632828332446667, guid: 857a5c63af2cca44ea73e12d2d492889, type: 3}
   unitPrefab: {fileID: 9014734248190914532, guid: e44d431dc5cd6214796d73246d96ca1d, type: 3}
   piyadeVerisi: {fileID: 11400000, guid: a8f7c76a057386f4da72de51b5347d3b, type: 2}

@@ -155,6 +155,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BattleTile
   x: 0
   y: 0
+  zeminTuru: 1
 --- !u!1 &3876035656114629167
 GameObject:
   m_ObjectHideFlags: 0

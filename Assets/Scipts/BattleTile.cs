@@ -4,7 +4,15 @@ public class BattleTile : MonoBehaviour
 {
     public int x;
     public int y;
-    public bool engelMi = false; // YENİ: Buraya yürünebilir mi?
+    
+    public enum ZeminTipi { Duz, Kaya, Orman, Tepe }
+    [Header("Zemin Ayarları")]
+    public ZeminTipi zeminTuru = ZeminTipi.Duz; 
+    
+    // YENİ: Kayanın üzerinden geçilemez, diğerlerinin üzerinden geçilebilir
+    public bool YurunebilirMi => zeminTuru != ZeminTipi.Kaya;
+    
+    // ESKİ engelMi özelliğini şimdilik geriye dönük uyumluluk için siliyoruz, BattleManager'da güncelleyeceğiz.
     
     private Color orijinalRenk; 
 

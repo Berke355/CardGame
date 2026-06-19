@@ -26,7 +26,7 @@ public class BattleManager : MonoBehaviour
     public bool savasBittiMi = false;
 
     [Header("Harita Biyom Ayarları")]
-    public int genislik = 10;
+    public int genislik = 15; // YENİ: Harita 15x10'a büyütüldü
     public int yukseklik = 10;
     public float tileBoyutu = 1.05f;
 
@@ -95,11 +95,11 @@ public class BattleManager : MonoBehaviour
                 // 1. Askerlerin Başlangıç Konumu Gerekçesiyle "Güvenli Bölge" mi?
                 bool baslangicNoktasiMi = false;
                 
-                // Kale ve Balista Doğuş Noktaları
-                if ((x == 8 && y == 5) || (x == 8 && y == 3)) baslangicNoktasiMi = true; 
+                // Kale ve Balista Doğuş Noktaları (Harita genişlediği için sağa kaydı)
+                if ((x == 13 && y == 5) || (x == 13 && y == 3)) baslangicNoktasiMi = true; 
                 
-                // Meydan Muharebesi Ordusu (Piyade, Okçu) Doğuş Noktaları
-                if ((x == 8 && y == 4) || (x == 8 && y == 6) || (x == 9 && y == 5)) baslangicNoktasiMi = true;
+                // Meydan Muharebesi Ordusu Doğuş Noktaları
+                if ((x == 13 && y == 4) || (x == 13 && y == 6) || (x == 14 && y == 5)) baslangicNoktasiMi = true;
 
                 // Failsafe oyuncu doğuşu
                 if (x == 1 && y == 2) baslangicNoktasiMi = true;
@@ -114,17 +114,15 @@ public class BattleManager : MonoBehaviour
                     }
                 }
 
-                bool engelYapildi = false;
                 GameObject seciliPrefab = varsayilanTilePrefab;
                 
-                // 2. Rastgele Engel Seçimi (%15 ihtimalle ve güvenli bölge değilse)
+                // 2. Rastgele Zemin/Engel Seçimi (%15 ihtimalle ve güvenli bölge değilse)
                 if (!baslangicNoktasiMi && secilenBiyom != null && secilenBiyom.tilePrefablari.Length > 0)
                 {
                     if (Random.value < 0.15f) // %15 Şans
                     {
                         int rastgeleIndex = Random.Range(0, secilenBiyom.tilePrefablari.Length);
                         seciliPrefab = secilenBiyom.tilePrefablari[rastgeleIndex];
-                        engelYapildi = true;
                     }
                 }
 
@@ -133,7 +131,8 @@ public class BattleManager : MonoBehaviour
                 
                 BattleTile tileKodu = yeniTile.GetComponent<BattleTile>();
                 tileKodu.Setup(x, y);
-                tileKodu.engelMi = engelYapildi; // Tile'a Engel bilgisini kazı
+                // NOT: Artık engel/zemin bilgisini Inspector'daki prefabın kendisinden okuyoruz.
+                // tileKodu.engelMi = engelYapildi; kodunu sildik.
                 
                 grid[x, y] = tileKodu; // Kareyi hafızaya kaydet
             }
@@ -232,21 +231,20 @@ public class BattleManager : MonoBehaviour
         if (kaleyeMiSaliyoruz)
         {
             // Kale Kuşatması
-            BirimYarat(kaleKapisiVerisi, 8, 5, false); // Düşman Kale Kapısı
-            BirimYarat(balistaVerisi, 8, 3, false);    // Düşman Balistası
+            BirimYarat(kaleKapisiVerisi, 13, 5, false); // Düşman Kale Kapısı
+            BirimYarat(balistaVerisi, 13, 3, false);    // Düşman Balistası
         }
         else
         {
             // Meydan Muharebesi (Düşman Ordusu)
-            // 2 Piyade ve 1 Okçu'dan oluşan bir savunma ordusu çıkartıyoruz
-            BirimYarat(piyadeVerisi, 8, 4, false);
-            BirimYarat(piyadeVerisi, 8, 6, false);
+            BirimYarat(piyadeVerisi, 13, 4, false);
+            BirimYarat(piyadeVerisi, 13, 6, false);
             
             UnitData dusmanOkcu = null;
             foreach(var v in tumBirimlerVeritabani) { if(v != null && v.birimAdi == "Okçu") dusmanOkcu = v; }
             
-            if (dusmanOkcu != null) BirimYarat(dusmanOkcu, 9, 5, false);
-            else BirimYarat(piyadeVerisi, 9, 5, false); // Failsafe: Okçu bulunamazsa piyade bas
+            if (dusmanOkcu != null) BirimYarat(dusmanOkcu, 14, 5, false);
+            else BirimYarat(piyadeVerisi, 14, 5, false); // Failsafe
         }
     }
 
@@ -276,15 +274,36 @@ public class BattleManager : MonoBehaviour
             return; // Hasar vurmadan çık
         }
 
+        // YENİ: ZEMİN VE SİPER AVANTAJLARI
+        BattleTile saldiranTile = grid[saldiran.gridX, saldiran.gridY];
+        BattleTile savunanTile = grid[savunan.gridX, savunan.gridY];
+
+        int aktifIsabet = saldiran.veri.isabetDegeri;
+        int aktifZirh = savunan.veri.zirhDegeri;
+
+        // Okçu Tepe'den atış yapıyorsa +2 İsabet
+        if (saldiranTile.zeminTuru == BattleTile.ZeminTipi.Tepe && saldiran.veri.saldiriMenzili > 1)
+        {
+            aktifIsabet += 2;
+            Debug.Log($"[TEPE AVANTAJI] {saldiran.veri.birimAdi} yüksekten ateş ettiği için +2 İsabet kazandı!");
+        }
+
+        // Savunan Orman'ın içindeyse (siper aldıysa) +2 Zırh
+        if (savunanTile.zeminTuru == BattleTile.ZeminTipi.Orman)
+        {
+            aktifZirh += 2;
+            Debug.Log($"[SİPER AVANTAJI] {savunan.veri.birimAdi} ormanda saklandığı için +2 Zırh kazandı!");
+        }
+
         // 1 ile 20 arası rastgele zar at (21 dahil değil)
         int d20 = Random.Range(1, 21); 
-        int toplamSaldiriGucu = d20 + saldiran.veri.isabetDegeri;
+        int toplamSaldiriGucu = d20 + aktifIsabet;
 
         Debug.Log($"--- SAVAŞ: {saldiran.veri.birimAdi} -> {savunan.veri.birimAdi} hedefine saldırıyor! ---");
-        Debug.Log($"Zar (1d20): {d20} + İsabet: {saldiran.veri.isabetDegeri} = TOPLAM: {toplamSaldiriGucu}");
+        Debug.Log($"Zar (1d20): {d20} + İsabet: {aktifIsabet} = TOPLAM: {toplamSaldiriGucu}");
 
         // Toplam güç, savunanın zırhından (AC) büyük mü? VEYA natürel 20 mi geldi (Kritik vuruş)?
-        if (toplamSaldiriGucu > savunan.veri.zirhDegeri || d20 == 20)
+        if (toplamSaldiriGucu > aktifZirh || d20 == 20)
         {
             int verilecekHasar = saldiran.veri.hasar;
 
@@ -380,7 +399,7 @@ public class BattleManager : MonoBehaviour
                 // DURUM 3: BOŞ BİR KAREYE TIKLADIK -> YÜRÜME MANTIĞI
                 else if (tiklananTile != null && seciliBirim != null)
                 {
-                    if (tiklananTile.engelMi)
+                    if (!tiklananTile.YurunebilirMi)
                     {
                         Debug.Log("HATA: Burası bir orman veya dağ, üzerine yürüyemezsin!");
                         return; // Oraya tıklanmasına izin verme
@@ -645,7 +664,7 @@ public class BattleManager : MonoBehaviour
             {
                 if(komsu.x < 0 || komsu.x >= genislik || komsu.y < 0 || komsu.y >= yukseklik) continue;
                 
-                if (grid[komsu.x, komsu.y].engelMi) continue;
+                if (!grid[komsu.x, komsu.y].YurunebilirMi) continue;
                 
                 bool birimVar = false;
                 foreach(var asker in oyuncuBirimleri) { if(asker.gridX == komsu.x && asker.gridY == komsu.y) birimVar = true; }
@@ -689,7 +708,7 @@ public class BattleManager : MonoBehaviour
             {
                 if(komsu.x < 0 || komsu.x >= genislik || komsu.y < 0 || komsu.y >= yukseklik) continue;
                 if(parentMap.ContainsKey(komsu)) continue;
-                if(grid[komsu.x, komsu.y].engelMi) continue;
+                if(!grid[komsu.x, komsu.y].YurunebilirMi) continue;
 
                 bool birimVar = false;
                 foreach(var asker in oyuncuBirimleri) { if(asker.gridX == komsu.x && asker.gridY == komsu.y) birimVar = true; }
