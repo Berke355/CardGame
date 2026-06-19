@@ -102,12 +102,12 @@ public class EnemyAIManager : MonoBehaviour
         
         if (aktifKesifBirli != null)
         {
-            YapayZekaYurutVeSaldir(aktifKesifBirli, ref kesifHedefi, mapCtrl, false);
+            if (YapayZekaYurutVeSaldir(aktifKesifBirli, ref kesifHedefi, mapCtrl, false)) return;
         }
 
         if (aktifDusmanOrdusu != null)
         {
-            YapayZekaYurutVeSaldir(aktifDusmanOrdusu, ref orduHedefi, mapCtrl, true);
+            if (YapayZekaYurutVeSaldir(aktifDusmanOrdusu, ref orduHedefi, mapCtrl, true)) return;
         }
         
         intikalPuani--;
@@ -120,7 +120,7 @@ public class EnemyAIManager : MonoBehaviour
         
         foreach(var hex in hqNeighbors) 
         {
-            if (mapCtrl.hexTilemap.HasTile(hex) && mapCtrl.hexTilemap.GetTile(hex) == mapCtrl.cimenTile)
+            if (mapCtrl.hexTilemap.HasTile(hex) && mapCtrl.hexTilemap.GetTile(hex) != mapCtrl.suTile)
             {
                 Vector3 wPos = mapCtrl.hexTilemap.GetCellCenterWorld(hex);
                 Collider2D[] col = Physics2D.OverlapCircleAll(wPos, 0.5f);
@@ -132,7 +132,7 @@ public class EnemyAIManager : MonoBehaviour
         return Vector3.zero;
     }
 
-    private void YapayZekaYurutVeSaldir(GameObject birim, ref Vector3Int? hedefRotasi, MapController mapCtrl, bool isOrdu)
+    private bool YapayZekaYurutVeSaldir(GameObject birim, ref Vector3Int? hedefRotasi, MapController mapCtrl, bool isOrdu)
     {
         ArmyStats stats = birim.GetComponent<ArmyStats>();
         if (stats != null)
@@ -141,7 +141,7 @@ public class EnemyAIManager : MonoBehaviour
             {
                 Debug.Log($"[ENEMY AI] {birim.name} bu tur dondurulmuş veya tedariki kesilmiş! Hareket edemiyor.");
                 stats.buTurHareketEttiMi = false; // Bir sonraki tur için kilidi aç
-                return;
+                return false;
             }
         }
 
@@ -255,7 +255,7 @@ public class EnemyAIManager : MonoBehaviour
                     List<Vector3Int> uzakKaralar = new List<Vector3Int>();
                     foreach (var pos in bounds.allPositionsWithin)
                     {
-                        if (mapCtrl.hexTilemap.HasTile(pos) && mapCtrl.hexTilemap.GetTile(pos) == mapCtrl.cimenTile)
+                        if (mapCtrl.hexTilemap.HasTile(pos) && mapCtrl.hexTilemap.GetTile(pos) != mapCtrl.suTile)
                         {
                             if (Vector2.Distance(mapCtrl.hexTilemap.GetCellCenterWorld(pos), birim.transform.position) > 12f)
                             {
@@ -396,11 +396,23 @@ public class EnemyAIManager : MonoBehaviour
                                     
                                     string biyomAdi = "";
                                     Vector3Int hexPos = mapCtrl.hexTilemap.WorldToCell(hedefObj.transform.position);
+                                    hexPos.z = 0; // Unity Tilemap genelde Z=0 da olduğu için zorunlu sıfırlama
+                                    
                                     if (mapCtrl.hexTilemap.HasTile(hexPos)) 
                                         biyomAdi = mapCtrl.hexTilemap.GetTile(hexPos).name;
+                                        
+                                    // YENİ: Fallback - Eğer oyuncunun üstünde durduğu zemin bulunamazsa düşmanın kendi zeminine bak
+                                    if (string.IsNullOrEmpty(biyomAdi))
+                                    {
+                                        Vector3Int enemyHex = mapCtrl.hexTilemap.WorldToCell(birim.transform.position);
+                                        enemyHex.z = 0;
+                                        if (mapCtrl.hexTilemap.HasTile(enemyHex)) 
+                                            biyomAdi = mapCtrl.hexTilemap.GetTile(enemyHex).name;
+                                    }
                                     
                                     SavasHafizasi.Instance.SavasiBaslat(birim, biyomAdi); 
                                     Debug.Log($"[ENEMY AI] {birim.name} OYUNCUYA SALDIRDI (MİKRO SAVAŞ)! Biyom: {biyomAdi}");
+                                    return true; // SAVAŞ BAŞLADI, ZAMANLAMAYI DURDUR
                                 }
                             }
                         }
@@ -410,5 +422,6 @@ public class EnemyAIManager : MonoBehaviour
                 }
             }
         }
+        return false;
     }
 }

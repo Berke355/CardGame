@@ -301,6 +301,13 @@ public class BattleManager : MonoBehaviour
             Debug.Log($"[SİPER AVANTAJI] {savunan.veri.birimAdi} ormanda saklandığı için +2 Zırh kazandı!");
         }
 
+        // YENİ: Savunma Pozisyonu Aktifse +2 Zırh
+        if (savunan.savunmaPozisyonuAktif)
+        {
+            aktifZirh += 2;
+            Debug.Log($"[SAVUNMA POZİSYONU] {savunan.veri.birimAdi} kalkan duvarı sayesinde +2 Zırh kazandı!");
+        }
+
         // 1 ile 20 arası rastgele zar at (21 dahil değil)
         int d20 = Random.Range(1, 21); 
         int toplamSaldiriGucu = d20 + aktifIsabet;
@@ -349,7 +356,6 @@ public class BattleManager : MonoBehaviour
         
         saldiran.veri.hasar = eskiHasar; // Hasarı geri düzelt
         saldiran.yetenekCooldown = 2; // 2 Tur bekleme
-        SecimiTemizle();
     }
 
     public void OrmaniAteseVer(BattleTile tile)
@@ -373,13 +379,31 @@ public class BattleManager : MonoBehaviour
         }
     }
 
-    public void Buton_AtesliOk()
+    public void Buton_Yetenek()
     {
         if (seciliBirim != null && seciliBirim.yetenekCooldown <= 0)
         {
-            atesliOkAktifMi = true;
-            yetenekButonu.SetActive(false);
-            Debug.Log("Okçu ateşli ok modunda! Bir düşman seç.");
+            if (seciliBirim.veri.birimAdi == "Okçu")
+            {
+                atesliOkAktifMi = true;
+                yetenekButonu.SetActive(false);
+                Debug.Log("Okçu ateşli ok modunda! Bir düşman seç veya ormanı yak.");
+            }
+            else if (seciliBirim.veri.birimAdi == "Piyade")
+            {
+                seciliBirim.savunmaPozisyonuAktif = true;
+                seciliBirim.yetenekCooldown = 2;
+                Debug.Log("Piyade Savunma Pozisyonu'na geçti! +2 Zırh kazandı.");
+                MenzilleriGoster(seciliBirim);
+            }
+            else if (seciliBirim.veri.birimAdi == "Süvari")
+            {
+                seciliBirim.vurKacAktif = true;
+                seciliBirim.yetenekCooldown = 2;
+                if (seciliBirim.saldirdiMi) seciliBirim.yuruduMu = false; // Eğer önceden saldırdıysa hakkı iade et
+                Debug.Log("Süvari Vur Kaç modunda! Saldırıdan sonra tekrar yürüyebilecek.");
+                MenzilleriGoster(seciliBirim);
+            }
         }
     }
 
@@ -409,13 +433,29 @@ public class BattleManager : MonoBehaviour
         // SOL TIK: Birim Seç, Düşmana Saldır veya Yürü
         if (Input.GetMouseButtonDown(0))
         {
-            Vector3 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-            RaycastHit2D hit = Physics2D.Raycast(mousePos, Vector2.zero);
-
-            if (hit.collider != null)
+            // YENİ: UI üzerine tıklandıysa alttaki haritaya tıklamayı engelle
+            if (UnityEngine.EventSystems.EventSystem.current != null && UnityEngine.EventSystems.EventSystem.current.IsPointerOverGameObject())
             {
-                BattleUnit tiklananBirim = hit.collider.GetComponent<BattleUnit>();
-                BattleTile tiklananTile = hit.collider.GetComponent<BattleTile>();
+                return;
+            }
+
+            Vector3 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+            RaycastHit2D[] hits = Physics2D.RaycastAll(mousePos, Vector2.zero);
+
+            if (hits.Length > 0)
+            {
+                BattleUnit tiklananBirim = null;
+                BattleTile tiklananTile = null;
+
+                // YENİ: Raycast birden fazla şeye çarpıyorsa önceliği askere ver! (Askerler yerin üstündedir)
+                foreach (var h in hits)
+                {
+                    if (h.collider.GetComponent<BattleUnit>() != null)
+                        tiklananBirim = h.collider.GetComponent<BattleUnit>();
+                    
+                    if (h.collider.GetComponent<BattleTile>() != null)
+                        tiklananTile = h.collider.GetComponent<BattleTile>();
+                }
 
                 // DURUM 1 & 2: BİR BİRİME (ASKERE) TIKLADIK
                 if (tiklananBirim != null)
@@ -450,6 +490,9 @@ public class BattleManager : MonoBehaviour
                                 }
                                 
                                 seciliBirim.saldirdiMi = true;
+                                if (seciliBirim.vurKacAktif) {
+                                    seciliBirim.yuruduMu = false; // Tekrar yürüyebilmesi için hak tanınıyor
+                                }
                                 SecimiTemizle();
                             }
                             else Debug.Log("HATA: Düşman menzil dışında!");
@@ -495,7 +538,7 @@ public class BattleManager : MonoBehaviour
 
                     if (!kareDoluMu)
                     {
-                        if (!seciliBirim.saldirdiMi)
+                        if (!seciliBirim.saldirdiMi || seciliBirim.vurKacAktif)
                         {
                             if (!seciliBirim.yuruduMu)
                             {
@@ -511,6 +554,9 @@ public class BattleManager : MonoBehaviour
                                     seciliBirim.RotayiBaslat(adimlar, tileBoyutu);
                                     
                                     seciliBirim.yuruduMu = true;
+                                    if (seciliBirim.vurKacAktif && seciliBirim.saldirdiMi) {
+                                        seciliBirim.vurKacAktif = false; // Vurup Kaçma hakkı kullanıldı
+                                    }
                                     MenzilleriTemizle();
                                     Debug.Log($"{seciliBirim.veri.birimAdi} başarıyla yola çıktı.");
                                 }
@@ -558,16 +604,29 @@ public class BattleManager : MonoBehaviour
     void MenzilleriGoster(BattleUnit birim)
     {
         // Yetenek Arayüzünü Kontrol Et
-        if (birim.veri.birimAdi == "Okçu" && yetenekButonu != null)
+        if (yetenekButonu != null)
         {
-            yetenekButonu.SetActive(true);
-            if (birim.yetenekCooldown > 0)
+            if (birim.veri.birimAdi == "Okçu" || birim.veri.birimAdi == "Piyade" || birim.veri.birimAdi == "Süvari")
             {
-                yetenekButonuYazisi.text = $"Bekle: {birim.yetenekCooldown} Tur";
+                yetenekButonu.SetActive(true);
+                
+                string yetenekIsmi = "";
+                if (birim.veri.birimAdi == "Okçu") yetenekIsmi = "Ateşli Ok";
+                else if (birim.veri.birimAdi == "Piyade") yetenekIsmi = "Savunma Pozisyonu";
+                else if (birim.veri.birimAdi == "Süvari") yetenekIsmi = "Vur Kaç";
+
+                if (birim.yetenekCooldown > 0)
+                {
+                    yetenekButonuYazisi.text = $"Bekle: {birim.yetenekCooldown} Tur";
+                }
+                else
+                {
+                    yetenekButonuYazisi.text = $"{yetenekIsmi} (Hazır)";
+                }
             }
             else
             {
-                yetenekButonuYazisi.text = "Ateşli Ok (Hazır)";
+                yetenekButonu.SetActive(false);
             }
         }
         
@@ -631,6 +690,8 @@ public class BattleManager : MonoBehaviour
             BattleUnit dusman = dusmanBirimleri[i];
             dusman.saldirdiMi = false; 
             dusman.yuruduMu = false; 
+            dusman.savunmaPozisyonuAktif = false;
+            dusman.vurKacAktif = false;
             
             if (dusman.yetenekCooldown > 0) dusman.yetenekCooldown--;
             
@@ -718,6 +779,8 @@ public class BattleManager : MonoBehaviour
             BattleUnit asker = oyuncuBirimleri[i];
             asker.saldirdiMi = false; 
             asker.yuruduMu = false; 
+            asker.savunmaPozisyonuAktif = false;
+            asker.vurKacAktif = false;
             
             if (asker.yetenekCooldown > 0) asker.yetenekCooldown--;
             

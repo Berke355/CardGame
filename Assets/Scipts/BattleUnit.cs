@@ -17,6 +17,8 @@ public class BattleUnit : MonoBehaviour
 
     [Header("Yetenek Durumu")]
     public int yetenekCooldown = 0; // Yetenek kullandıktan sonra bekleyeceği tur sayısı
+    public bool savunmaPozisyonuAktif = false;
+    public bool vurKacAktif = false;
 
     [Header("Hareket Animasyonu")]
     public float hareketHizi = 5f;
