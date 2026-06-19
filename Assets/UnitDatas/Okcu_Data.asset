@@ -14,6 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::UnitData
   birimAdi: "Ok\xE7u"
   birimGorseli: {fileID: -1957473574105466103, guid: d07ca82d949ff8243b3026ea36a05278, type: 3}
+  birimPrefab: {fileID: 4141954018003826246, guid: b5c4fb0f21614d045bb4ab305d88b87b, type: 3}
   maxCan: 2
   hasar: 2
   zirhDegeri: 10

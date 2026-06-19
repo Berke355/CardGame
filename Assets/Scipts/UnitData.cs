@@ -3,9 +3,10 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "YeniBirim", menuName = "GoT_KartOyunu/Birim Verisi")]
 public class UnitData : ScriptableObject
 {
-    [Header("Görsel")]
+    [Header("Görsel ve Prefab")]
     public string birimAdi;
-    public Sprite birimGorseli; // Arenada nasıl görüneceği
+    public Sprite birimGorseli; // (Opsiyonel) UI için veya fallback ikon
+    public GameObject birimPrefab; // YENİ: Bu birime özel (Okçu, Süvari vb.) 3D/2D obje kalıbı
 
     [Header("D&D Savaş İstatistikleri")]
     public int maxCan = 3;

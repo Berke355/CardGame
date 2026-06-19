@@ -94,7 +94,15 @@ public class BattleManager : MonoBehaviour
                 
                 // 1. Askerlerin Başlangıç Konumu Gerekçesiyle "Güvenli Bölge" mi?
                 bool baslangicNoktasiMi = false;
-                if ((x == 8 && y == 5) || (x == 8 && y == 3)) baslangicNoktasiMi = true; // Düşmanların sabit test konumu
+                
+                // Kale ve Balista Doğuş Noktaları
+                if ((x == 8 && y == 5) || (x == 8 && y == 3)) baslangicNoktasiMi = true; 
+                
+                // Meydan Muharebesi Ordusu (Piyade, Okçu) Doğuş Noktaları
+                if ((x == 8 && y == 4) || (x == 8 && y == 6) || (x == 9 && y == 5)) baslangicNoktasiMi = true;
+
+                // Failsafe oyuncu doğuşu
+                if (x == 1 && y == 2) baslangicNoktasiMi = true;
                 if (oyuncuBaslangicNoktalari != null)
                 {
                     foreach (var dogus in oyuncuBaslangicNoktalari)
@@ -246,7 +254,10 @@ public class BattleManager : MonoBehaviour
     {
         // Birimi haritadaki X,Y koordinatına tam oturt
         Vector2 pozisyon = new Vector2(x * tileBoyutu, y * tileBoyutu);
-        GameObject yeniAsker = Instantiate(unitPrefab, pozisyon, Quaternion.identity);
+        
+        // YENİ: Eğer UnitData içine özel bir prefab atanmışsa onu kullan, yoksa eski jenerik prefab'a düş
+        GameObject basilacakPrefab = (veri != null && veri.birimPrefab != null) ? veri.birimPrefab : unitPrefab;
+        GameObject yeniAsker = Instantiate(basilacakPrefab, pozisyon, Quaternion.identity);
         
         BattleUnit birimKodu = yeniAsker.GetComponent<BattleUnit>();
         birimKodu.Setup(veri, x, y, bizdenMi);
