@@ -21,6 +21,12 @@ public class BattleManager : MonoBehaviour
     public GameObject savasSonuPaneli;
     public TMP_Text savasSonuYazisi;
 
+    [Header("Yetenek Sistemi (Ateşli Ok)")]
+    public GameObject yetenekButonu;
+    public TMP_Text yetenekButonuYazisi;
+    public GameObject yananOrmanPrefab;
+    public bool atesliOkAktifMi = false;
+
     [Header("Tur Sistemi")]
     public bool oyuncuTuru = true; // Oyun bizimle başlar
     public bool savasBittiMi = false;
@@ -315,19 +321,65 @@ public class BattleManager : MonoBehaviour
                 Debug.Log($"[KUŞATMA!] {saldiran.veri.birimAdi} binaya ekstra hasar vurdu! Toplam Hasar: {verilecekHasar}");
             }
 
+            // Vuruş başarılı olduysa hedef hasar alır
             savunan.mevcutCan -= verilecekHasar;
             savunan.CaniGuncelle();
-            Debug.Log($"💥 VURUŞ BAŞARILI! Savunanın Zırhı ({savunan.veri.zirhDegeri}) aşıldı. Verilen Hasar: {verilecekHasar}. Kalan Can: {savunan.mevcutCan}");
-
-            if (savunan.mevcutCan <= 0)
-            {
-                Debug.Log($"☠️ {savunan.veri.birimAdi} ÖLDÜ!");
-                BirimOldu(savunan);
-            }
+            
+            // YENİ: Birlik öldüyse onu OlumKontrolu fonksiyonuna devret
+            savunan.OlumKontrolu();
+            SavasDurumunuKontrolEt();
         }
         else
         {
             Debug.Log($"🛡️ ISKA / ZIRHTAN SEKTİ! Toplam ({toplamSaldiriGucu}), savunanın zırhını ({savunan.veri.zirhDegeri}) geçemedi.");
+        }
+    }
+
+    public void AtesliOkGerceklestir(BattleUnit saldiran, BattleUnit savunan)
+    {
+        Debug.Log("🔥 ATEŞLİ OK KULLANILDI!");
+        int eskiHasar = saldiran.veri.hasar;
+        saldiran.veri.hasar += 3; // +3 Bonus
+        
+        SaldiriGerceklestir(saldiran, savunan);
+        
+        // ZEMİNİ KONTROL ET VE YAK
+        BattleTile savunanTile = grid[savunan.gridX, savunan.gridY];
+        OrmaniAteseVer(savunanTile);
+        
+        saldiran.veri.hasar = eskiHasar; // Hasarı geri düzelt
+        saldiran.yetenekCooldown = 2; // 2 Tur bekleme
+        SecimiTemizle();
+    }
+
+    public void OrmaniAteseVer(BattleTile tile)
+    {
+        if (tile != null && tile.zeminTuru == BattleTile.ZeminTipi.Orman && yananOrmanPrefab != null)
+        {
+            Vector3 pozisyon = tile.transform.position;
+            int hX = tile.x;
+            int hY = tile.y;
+            Destroy(tile.gameObject);
+            
+            GameObject yeniTileObj = Instantiate(yananOrmanPrefab, pozisyon, Quaternion.identity);
+            yeniTileObj.transform.SetParent(this.transform);
+            
+            BattleTile yeniTile = yeniTileObj.GetComponent<BattleTile>();
+            yeniTile.Setup(hX, hY);
+            yeniTile.zeminTuru = BattleTile.ZeminTipi.YananOrman;
+            
+            grid[hX, hY] = yeniTile;
+            Debug.Log("🌲🔥 ORMAN ATEŞE VERİLDİ!");
+        }
+    }
+
+    public void Buton_AtesliOk()
+    {
+        if (seciliBirim != null && seciliBirim.yetenekCooldown <= 0)
+        {
+            atesliOkAktifMi = true;
+            yetenekButonu.SetActive(false);
+            Debug.Log("Okçu ateşli ok modunda! Bir düşman seç.");
         }
     }
 
@@ -387,7 +439,16 @@ public class BattleManager : MonoBehaviour
 
                             if (uzaklik <= seciliBirim.veri.saldiriMenzili)
                             {
-                                SaldiriGerceklestir(seciliBirim, tiklananBirim);
+                                // EĞER ATEŞLİ OK AKTİFSE
+                                if (atesliOkAktifMi && seciliBirim.veri.birimAdi == "Okçu")
+                                {
+                                    AtesliOkGerceklestir(seciliBirim, tiklananBirim);
+                                }
+                                else
+                                {
+                                    SaldiriGerceklestir(seciliBirim, tiklananBirim);
+                                }
+                                
                                 seciliBirim.saldirdiMi = true;
                                 SecimiTemizle();
                             }
@@ -396,9 +457,32 @@ public class BattleManager : MonoBehaviour
                         else Debug.Log("HATA: Bu birim bu tur zaten saldırdı!");
                     }
                 }
-                // DURUM 3: BOŞ BİR KAREYE TIKLADIK -> YÜRÜME MANTIĞI
+                // DURUM 3: BOŞ BİR KAREYE TIKLADIK -> YÜRÜME VEYA ATEŞLİ OK MANTIĞI
                 else if (tiklananTile != null && seciliBirim != null)
                 {
+                    // YENİ: Ateşli ok ile boş bir ormanı vurmak
+                    if (atesliOkAktifMi && seciliBirim.veri.birimAdi == "Okçu" && !seciliBirim.saldirdiMi)
+                    {
+                        int mesafeX = Mathf.Abs(seciliBirim.gridX - tiklananTile.x);
+                        int mesafeY = Mathf.Abs(seciliBirim.gridY - tiklananTile.y);
+                        
+                        if (Mathf.Max(mesafeX, mesafeY) <= seciliBirim.veri.saldiriMenzili)
+                        {
+                            if (tiklananTile.zeminTuru == BattleTile.ZeminTipi.Orman)
+                            {
+                                Debug.Log("🔥 ATEŞLİ OK KULLANILDI!");
+                                OrmaniAteseVer(tiklananTile);
+                                seciliBirim.yetenekCooldown = 2;
+                                seciliBirim.saldirdiMi = true;
+                                SecimiTemizle();
+                            }
+                            else Debug.Log("HATA: Sadece ormanları ateşe verebilirsin!");
+                        }
+                        else Debug.Log("HATA: Hedef menzil dışında!");
+                        
+                        return; // Yürüme mantığına girmeden çık
+                    }
+
                     if (!tiklananTile.YurunebilirMi)
                     {
                         Debug.Log("HATA: Burası bir orman veya dağ, üzerine yürüyemezsin!");
@@ -449,6 +533,10 @@ public class BattleManager : MonoBehaviour
             seciliBirim.GetComponent<SpriteRenderer>().color = Color.white; // Rengi normale çevir
             seciliBirim = null;
         }
+        
+        atesliOkAktifMi = false;
+        if (yetenekButonu != null) yetenekButonu.SetActive(false);
+        
         MenzilleriTemizle();
     }
 
@@ -469,6 +557,20 @@ public class BattleManager : MonoBehaviour
 
     void MenzilleriGoster(BattleUnit birim)
     {
+        // Yetenek Arayüzünü Kontrol Et
+        if (birim.veri.birimAdi == "Okçu" && yetenekButonu != null)
+        {
+            yetenekButonu.SetActive(true);
+            if (birim.yetenekCooldown > 0)
+            {
+                yetenekButonuYazisi.text = $"Bekle: {birim.yetenekCooldown} Tur";
+            }
+            else
+            {
+                yetenekButonuYazisi.text = "Ateşli Ok (Hazır)";
+            }
+        }
+        
         MenzilleriTemizle(); // Önce eski boyaları bir silelim
 
         // YENİ: Engellerin pürüzünü hesaba katan su baskını algoritması (Mavi renk)
@@ -523,8 +625,26 @@ public class BattleManager : MonoBehaviour
 
     IEnumerator DusmanTuruAnimasyonu()
     {
-        // Düşmanların yürüme/saldırma haklarını yenile
-        foreach (var dusman in dusmanBirimleri) { dusman.saldirdiMi = false; dusman.yuruduMu = false; }
+        // Düşmanların yürüme/saldırma haklarını yenile, Cooldown düşür, Yanan Orman hasarı ver
+        for (int i = dusmanBirimleri.Count - 1; i >= 0; i--) 
+        { 
+            BattleUnit dusman = dusmanBirimleri[i];
+            dusman.saldirdiMi = false; 
+            dusman.yuruduMu = false; 
+            
+            if (dusman.yetenekCooldown > 0) dusman.yetenekCooldown--;
+            
+            if (grid[dusman.gridX, dusman.gridY].zeminTuru == BattleTile.ZeminTipi.YananOrman)
+            {
+                Debug.Log($"[YANAN ORMAN] Düşman {dusman.veri.birimAdi} alevlerden 1 hasar aldı!");
+                dusman.mevcutCan -= 1;
+                dusman.CaniGuncelle();
+                dusman.OlumKontrolu();
+            }
+        }
+        
+        SavasDurumunuKontrolEt();
+        if (savasBittiMi) yield break;
 
         yield return new WaitForSeconds(1f); // Düşman düşünüyormuş gibi kısa bir bekleme
 
@@ -592,8 +712,25 @@ public class BattleManager : MonoBehaviour
         Debug.Log("--- SIRA OYUNCUDA ---");
         oyuncuTuru = true;
 
-        // Askerlerimizin yürüme/saldırma haklarını yenile
-        foreach (var asker in oyuncuBirimleri) { asker.saldirdiMi = false; asker.yuruduMu = false; }
+        // Askerlerimizin yürüme/saldırma haklarını yenile, Cooldown düşür, Yanan Orman hasarı ver
+        for (int i = oyuncuBirimleri.Count - 1; i >= 0; i--) 
+        { 
+            BattleUnit asker = oyuncuBirimleri[i];
+            asker.saldirdiMi = false; 
+            asker.yuruduMu = false; 
+            
+            if (asker.yetenekCooldown > 0) asker.yetenekCooldown--;
+            
+            if (grid[asker.gridX, asker.gridY].zeminTuru == BattleTile.ZeminTipi.YananOrman)
+            {
+                Debug.Log($"[YANAN ORMAN] Askerin {asker.veri.birimAdi} alevlerden 1 hasar aldı!");
+                asker.mevcutCan -= 1;
+                asker.CaniGuncelle();
+                asker.OlumKontrolu();
+            }
+        }
+        
+        SavasDurumunuKontrolEt();
     }
 
     public void SavasDurumunuKontrolEt()

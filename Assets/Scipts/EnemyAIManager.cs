@@ -394,8 +394,13 @@ public class EnemyAIManager : MonoBehaviour
                                         SavasHafizasi.Instance.savasanBizimOrdu = hedefObj;
                                     }
                                     
-                                    SavasHafizasi.Instance.SavasiBaslat(birim, ""); 
-                                    Debug.Log($"[ENEMY AI] {birim.name} OYUNCUYA SALDIRDI (MİKRO SAVAŞ)!");
+                                    string biyomAdi = "";
+                                    Vector3Int hexPos = mapCtrl.hexTilemap.WorldToCell(hedefObj.transform.position);
+                                    if (mapCtrl.hexTilemap.HasTile(hexPos)) 
+                                        biyomAdi = mapCtrl.hexTilemap.GetTile(hexPos).name;
+                                    
+                                    SavasHafizasi.Instance.SavasiBaslat(birim, biyomAdi); 
+                                    Debug.Log($"[ENEMY AI] {birim.name} OYUNCUYA SALDIRDI (MİKRO SAVAŞ)! Biyom: {biyomAdi}");
                                 }
                             }
                         }

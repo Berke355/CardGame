@@ -15,6 +15,9 @@ public class BattleUnit : MonoBehaviour
     public bool saldirdiMi = false;
     public bool yuruduMu = false;
 
+    [Header("Yetenek Durumu")]
+    public int yetenekCooldown = 0; // Yetenek kullandıktan sonra bekleyeceği tur sayısı
+
     [Header("Hareket Animasyonu")]
     public float hareketHizi = 5f;
     private System.Collections.Generic.List<Vector2> rotam = new System.Collections.Generic.List<Vector2>();
@@ -58,6 +61,23 @@ public class BattleUnit : MonoBehaviour
         if (canYazisi != null)
         {
             canYazisi.text = $"{mevcutCan}/{veri.maxCan}";
+        }
+    }
+
+    public void OlumKontrolu()
+    {
+        if (mevcutCan <= 0)
+        {
+            Debug.Log($"{veri.birimAdi} isimli birlik öldü!");
+            
+            // Eğer bizdense listemizden çıkar, düşmansa düşman listesinden çıkar
+            if (BattleManager.Instance != null)
+            {
+                if (oyuncununBirimiMi) BattleManager.Instance.oyuncuBirimleri.Remove(this);
+                else BattleManager.Instance.dusmanBirimleri.Remove(this);
+            }
+            
+            Destroy(gameObject);
         }
     }
 

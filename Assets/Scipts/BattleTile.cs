@@ -5,7 +5,7 @@ public class BattleTile : MonoBehaviour
     public int x;
     public int y;
     
-    public enum ZeminTipi { Duz, Kaya, Orman, Tepe }
+    public enum ZeminTipi { Duz, Kaya, Orman, Tepe, YananOrman }
     [Header("Zemin Ayarları")]
     public ZeminTipi zeminTuru = ZeminTipi.Duz; 
     
