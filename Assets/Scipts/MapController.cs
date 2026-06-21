@@ -771,9 +771,29 @@ public class MapController : MonoBehaviour
                                         orduStats.hasarGucu += oynanacakKart.orduHasarArtisi;
                                         orduStats.ekstraBirlikHasari += oynanacakKart.orduHasarArtisi; // YENİ: Mikro harita buffı
                                         
-                                        orduStats.mevcutCan += oynanacakKart.orduCanArtisi;
-                                        orduStats.ekstraBirlikCani += oynanacakKart.orduCanArtisi; // YENİ: Mikro harita buffı
-                                        if (oynanacakKart.orduCanArtisi > 0) orduStats.maxCan += oynanacakKart.orduCanArtisi;
+                                        // YENİ: Ordu Can Artışı artık Max Canı artırmaz, "Diriltme" (Ziyafet vb.) işlemi yapar
+                                        if (oynanacakKart.orduCanArtisi > 0)
+                                        {
+                                            for (int i = 0; i < oynanacakKart.orduCanArtisi; i++)
+                                            {
+                                                if (orduStats.icindekiBirlikler.Count < 3 && orduStats.olenBirlikler.Count > 0)
+                                                {
+                                                    string dirilenBirlik = orduStats.olenBirlikler[orduStats.olenBirlikler.Count - 1];
+                                                    orduStats.olenBirlikler.RemoveAt(orduStats.olenBirlikler.Count - 1);
+                                                    orduStats.icindekiBirlikler.Add(dirilenBirlik);
+                                                    Debug.Log($"{dirilenBirlik} birliği {oynanacakKart.kartAdi} ile diriltildi!");
+                                                }
+                                                else if (orduStats.icindekiBirlikler.Count == 3)
+                                                {
+                                                    Debug.Log($"Ordu zaten tam kapasite (3/3), {oynanacakKart.kartAdi} canlandırma etkisi boşa gitti.");
+                                                }
+                                                else if (orduStats.icindekiBirlikler.Count < 3 && orduStats.olenBirlikler.Count == 0)
+                                                {
+                                                    Debug.Log($"Ordu kapasitesi {orduStats.icindekiBirlikler.Count}/3 ancak daha önce ölmüş hiçbir birlik yok! Ziyafet kartı diriltme yapamaz.");
+                                                }
+                                            }
+                                            orduStats.mevcutCan = orduStats.icindekiBirlikler.Count;
+                                        }
                                         
                                         if (oynanacakKart.orduHareketHiziArtisi > 0)
                                         {

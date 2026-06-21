@@ -7,8 +7,11 @@ public class ArmyStats : MonoBehaviour
     [Header("Ordu Verileri")]
     // YENİ: Makro haritadaki bu piyonun sırt çantası. Savaşa girdiğinde içinden hangi askerlerin çıkacağını tutar.
     public List<string> icindekiBirlikler = new List<string>();
+    
+    // YENİ: Savaşta ölen ve sonradan diriltilebilecek (Ziyafet vb. kartlarla) birliklerin hafızası
+    public List<string> olenBirlikler = new List<string>();
 
-    public int maxCan = 3; // Çanta Kapasitesi
+    public int maxCan = 3; // Çanta Kapasitesi (SABİT 3)
     public int mevcutCan = 3;
     public int hareketMenzili = 3; // 1 İntikal harcayarak kaç hex gideceği
     public int hasarGucu = 1;
@@ -48,6 +51,7 @@ public class ArmyStats : MonoBehaviour
             mevcutCan = 3;
         }
 
+        maxCan = 3; // Güvenlik için her zaman 3'e sabitliyoruz
         CanYazisiniGuncelle();
     }
 

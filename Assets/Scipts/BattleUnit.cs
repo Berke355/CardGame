@@ -72,14 +72,14 @@ public class BattleUnit : MonoBehaviour
         {
             Debug.Log($"{veri.birimAdi} isimli birlik öldü!");
             
-            // Eğer bizdense listemizden çıkar, düşmansa düşman listesinden çıkar
             if (BattleManager.Instance != null)
             {
-                if (oyuncununBirimiMi) BattleManager.Instance.oyuncuBirimleri.Remove(this);
-                else BattleManager.Instance.dusmanBirimleri.Remove(this);
+                BattleManager.Instance.BirimOldu(this);
             }
-            
-            Destroy(gameObject);
+            else
+            {
+                Destroy(gameObject);
+            }
         }
     }
 

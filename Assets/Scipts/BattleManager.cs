@@ -436,8 +436,19 @@ public class BattleManager : MonoBehaviour
 
     public void BirimOldu(BattleUnit olenBirim)
     {
-        if (olenBirim.oyuncununBirimiMi) oyuncuBirimleri.Remove(olenBirim);
-        else dusmanBirimleri.Remove(olenBirim);
+        if (olenBirim.oyuncununBirimiMi)
+        {
+            oyuncuBirimleri.Remove(olenBirim);
+            // Savaşta ölen dost birliğin ismini hafızaya yaz
+            if (SavasHafizasi.Instance != null)
+            {
+                SavasHafizasi.Instance.savastaOlenBirlikler.Add(olenBirim.veri.birimAdi);
+            }
+        }
+        else
+        {
+            dusmanBirimleri.Remove(olenBirim);
+        }
 
         Destroy(olenBirim.gameObject); // Ekrandan sil
         SavasDurumunuKontrolEt();

@@ -20,6 +20,7 @@ public class SavasHafizasi : MonoBehaviour
 
     [Header("Geri Dönüş Verileri (Kalıcı Hasar)")]
     public List<string> hayattaKalanBirlikler = new List<string>(); // YENİ: Savaştan dönen askerler burada tutulur
+    public List<string> savastaOlenBirlikler = new List<string>(); // YENİ: Savaşta ölen askerler burada tutulur
 
     // Manuel liste yerine, o an açık olan her şeyi otomatik aklında tutacak gizli liste
     private List<GameObject> gizlenenMakroObjeler = new List<GameObject>();
@@ -38,6 +39,7 @@ public class SavasHafizasi : MonoBehaviour
         savastanZaferleMiDondu = false; 
         gizlenenMakroObjeler.Clear();
         hayattaKalanBirlikler.Clear(); // YENİ: Önceki savaşın ölü/kalan hafızasını temizle
+        savastaOlenBirlikler.Clear(); // YENİ: Savaşta ölenlerin listesini de temizle
 
         // ÇÖZÜM 1: Makro haritadaki (oyun anında doğan KLONLAR dahil) HER ŞEYİ otomatik bul ve gizle
         Scene makroSahne = SceneManager.GetActiveScene();
@@ -89,6 +91,10 @@ public class SavasHafizasi : MonoBehaviour
                 {
                     bizimStat.icindekiBirlikler.Clear();
                     bizimStat.icindekiBirlikler.AddRange(hayattaKalanBirlikler);
+                    
+                    // Savaşta ölenleri kalıcı hafızaya yaz (Sonradan diriltilebilmeleri için)
+                    bizimStat.olenBirlikler.AddRange(savastaOlenBirlikler);
+
                     bizimStat.mevcutCan = hayattaKalanBirlikler.Count; // Canı yeni mevcuduna getir
                     bizimStat.CanYazisiniGuncelle(); // Ekranda da eksildiğini görsün
                 }
