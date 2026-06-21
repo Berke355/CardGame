@@ -40,7 +40,7 @@ MonoBehaviour:
   kaleOkcuHasariArtisi: 0
   kendiOrdunuFedaEt: 0
   ordununKopyasiniUret: 0
-  ekHareketHakki: 0
+  ekHareketHakki: 1
   dusmanHareketEngelle: 0
   dusmanIntikalSifirla: 0
   dusmanBirlikYokEt: 0

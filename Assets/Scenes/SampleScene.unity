@@ -1489,8 +1489,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 332.9862, y: 28.0166}
-  m_SizeDelta: {x: -689.0027, y: -267.4926}
+  m_AnchoredPosition: {x: 310.93054, y: 13.632385}
+  m_SizeDelta: {x: -644.8912, y: -162.0081}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &671387390
 MonoBehaviour:
@@ -1505,7 +1505,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.6313726, g: 1, b: 1, a: 1}
+  m_Color: {r: 0.010530429, g: 0.10943389, b: 0.10943389, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -4027,6 +4027,13 @@ MonoBehaviour:
   incelePaneli: {fileID: 671387388}
   inceleBaslikYazisi: {fileID: 1938465407}
   inceleIcerikYazisi: {fileID: 1657949063}
+  tumBirimlerVeritabani:
+  - {fileID: 11400000, guid: 021595acdccc8c64f9d84ddec2c84fc3, type: 2}
+  - {fileID: 11400000, guid: a61e8c9c6f2dcbe4fbc3b18925a7deef, type: 2}
+  - {fileID: 11400000, guid: a8f7c76a057386f4da72de51b5347d3b, type: 2}
+  - {fileID: 11400000, guid: 68158cd848b5bb746a2749f3a437b370, type: 2}
+  - {fileID: 11400000, guid: a30881cfa06b1404fb685315dfc9e412, type: 2}
+  - {fileID: 11400000, guid: 35a002ee953a36642a9a5c97cfff349a, type: 2}
   secilenKart: {fileID: 0}
   secilenKartinObjesi: {fileID: 0}
 --- !u!4 &1804324662

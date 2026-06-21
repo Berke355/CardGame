@@ -15,7 +15,7 @@ MonoBehaviour:
   kartAdi: Cesaretlen
   tur: 0
   aciklama: "Se\xE7ili ordudaki t\xFCm birimlerin hasar\u0131n\u0131 kal\u0131c\u0131
-    olarak 1 art\u0131r."
+    olarak 1 art\u0131r. T\xFCket."
   orduKartiMi: 0
   uretilecekBirlikler: []
   binaKartiMi: 0
@@ -31,9 +31,9 @@ MonoBehaviour:
   sinirdanAltinKazan: 0
   sinirdanTasKazan: 0
   sinirdanYemekKazan: 0
-  isTuketimKarti: 0
+  isTuketimKarti: 1
   cekilecekKartSayisi: 0
-  orduHasarArtisi: 0
+  orduHasarArtisi: 1
   orduCanArtisi: 0
   orduHareketHiziArtisi: 0
   kaleKapiCaniArtisi: 0

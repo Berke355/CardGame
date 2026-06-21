@@ -769,7 +769,10 @@ public class MapController : MonoBehaviour
                                     else
                                     {
                                         orduStats.hasarGucu += oynanacakKart.orduHasarArtisi;
+                                        orduStats.ekstraBirlikHasari += oynanacakKart.orduHasarArtisi; // YENİ: Mikro harita buffı
+                                        
                                         orduStats.mevcutCan += oynanacakKart.orduCanArtisi;
+                                        orduStats.ekstraBirlikCani += oynanacakKart.orduCanArtisi; // YENİ: Mikro harita buffı
                                         if (oynanacakKart.orduCanArtisi > 0) orduStats.maxCan += oynanacakKart.orduCanArtisi;
                                         
                                         if (oynanacakKart.orduHareketHiziArtisi > 0)
@@ -807,6 +810,13 @@ public class MapController : MonoBehaviour
                                         }
                                         
                                         orduStats.CanYazisiniGuncelle();
+                                    }
+
+                                    // YENİ: Orduya buff atıldıysa ve panel açıksa hemen güncellensin
+                                    if (GameManager.Instance != null) 
+                                    {
+                                        Debug.Log($"[BUFF TEST] Buff uygulandı! ekstraBirlikHasari = {orduStats.ekstraBirlikHasari}");
+                                        GameManager.Instance.GuncelleIncelePaneli();
                                     }
 
                                     GameManager.Instance.aksiyonPuani -= oynanacakKart.apBedeli;

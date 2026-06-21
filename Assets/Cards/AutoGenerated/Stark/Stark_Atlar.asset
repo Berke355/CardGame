@@ -35,7 +35,7 @@ MonoBehaviour:
   cekilecekKartSayisi: 0
   orduHasarArtisi: 0
   orduCanArtisi: 0
-  orduHareketHiziArtisi: 0
+  orduHareketHiziArtisi: 1
   kaleKapiCaniArtisi: 0
   kaleOkcuHasariArtisi: 0
   kendiOrdunuFedaEt: 0

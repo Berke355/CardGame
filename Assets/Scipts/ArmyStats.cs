@@ -19,6 +19,10 @@ public class ArmyStats : MonoBehaviour
     // YENİ: Kart efektleri için kimlik
     public bool dusmanMi = false;
 
+    [Header("Birlik Statları Modifikasyonları")]
+    public int ekstraBirlikHasari = 0;
+    public int ekstraBirlikCani = 0;
+
     [Header("Arayüz (UI)")]
     public TMP_Text orduCanYazisi; // Unity'den sürükleyeceğimiz yazı
 

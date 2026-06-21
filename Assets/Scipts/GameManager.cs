@@ -51,6 +51,8 @@ public class GameManager : MonoBehaviour
     public GameObject incelePaneli;
     public TMPro.TextMeshProUGUI inceleBaslikYazisi;
     public TMPro.TextMeshProUGUI inceleIcerikYazisi;
+    public List<UnitData> tumBirimlerVeritabani; // YENİ: Inspect panelinde baz statları okumak için
+    private GameObject suAnIncelenenHedef; // YENİ: Panelin açık olduğu hedefi hatırla
 
     public CardData secilenKart;
     public GameObject secilenKartinObjesi;
@@ -287,6 +289,7 @@ public class GameManager : MonoBehaviour
     {
         if (incelePaneli == null) return; // Panel henüz atanmadıysa hata verme
         
+        suAnIncelenenHedef = hedefObj;
         incelePaneli.SetActive(true);
         ArmyStats ordu = hedefObj.GetComponent<ArmyStats>();
         MakroKale kale = hedefObj.GetComponent<MakroKale>();
@@ -298,11 +301,35 @@ public class GameManager : MonoBehaviour
             string icerik = "Birliğin İçindekiler:\n\n";
             foreach (string birlik in ordu.icindekiBirlikler)
             {
-                icerik += $"- {birlik}\n";
+                // Veritabanından baz statları bul
+                int hasar = 0;
+                int can = 0;
+                UnitData bazVeri = null;
+                if (tumBirimlerVeritabani != null)
+                {
+                    bazVeri = tumBirimlerVeritabani.Find(v => v != null && v.birimAdi == birlik);
+                }
+                
+                if (bazVeri != null)
+                {
+                    hasar = bazVeri.hasar;
+                    can = bazVeri.maxCan;
+                }
+                else
+                {
+                    Debug.Log($"[BUFF TEST] '{birlik}' veritabani listesinde BULUNAMADI! Lutfen Isimleri kontrol et (Bosluk olabilir).");
+                }
+                
+                // Eğer buff/debuff varsa parantez içinde matematiksel olarak göster
+                string hasarYazisi = (ordu.ekstraBirlikHasari > 0) ? $"{hasar} + <color=green>{ordu.ekstraBirlikHasari}</color>" : (ordu.ekstraBirlikHasari < 0) ? $"{hasar} - <color=red>{Mathf.Abs(ordu.ekstraBirlikHasari)}</color>" : $"{hasar}";
+                string canYazisi = (ordu.ekstraBirlikCani > 0) ? $"{can} + <color=green>{ordu.ekstraBirlikCani}</color>" : (ordu.ekstraBirlikCani < 0) ? $"{can} - <color=red>{Mathf.Abs(ordu.ekstraBirlikCani)}</color>" : $"{can}";
+                
+                Debug.Log($"[BUFF TEST] Birlik Eklendi: {birlik} - Hasar: {hasarYazisi}");
+                icerik += $"- {birlik} (Hasar: {hasarYazisi}, Can: {canYazisi})\n";
             }
             if (ordu.icindekiBirlikler.Count == 0) icerik += "- (Boş)\n";
             
-            icerik += $"\nHasar Gücü: {ordu.hasarGucu}\nİntikal: {ordu.hareketMenzili}";
+            icerik += $"\nMakro Hasar Gücü: {ordu.hasarGucu}\nİntikal: {ordu.hareketMenzili}";
             inceleIcerikYazisi.text = icerik;
         }
         else if (kale != null)
@@ -312,8 +339,19 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    public void GuncelleIncelePaneli()
+    {
+        Debug.Log($"[BUFF TEST] GuncelleIncelePaneli cagirildi. panel={incelePaneli?.name}, panel.activeSelf={incelePaneli?.activeSelf}, hedef={suAnIncelenenHedef?.name}");
+        if (incelePaneli != null && incelePaneli.activeSelf && suAnIncelenenHedef != null)
+        {
+            Debug.Log("[BUFF TEST] Panel ve hedef gecerli, IncelePaneliniAc tekrar cagiriliyor...");
+            IncelePaneliniAc(suAnIncelenenHedef);
+        }
+    }
+
     public void IncelePaneliniKapat()
     {
+        suAnIncelenenHedef = null;
         if (incelePaneli != null) incelePaneli.SetActive(false);
     }
 }

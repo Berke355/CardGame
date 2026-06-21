@@ -21,6 +21,12 @@ public class BattleManager : MonoBehaviour
     public GameObject savasSonuPaneli;
     public TMP_Text savasSonuYazisi;
 
+    [Header("Mikro İncele (Inspect) Paneli")]
+    public GameObject incelePaneli;
+    public TMP_Text inceleBaslikYazisi;
+    public TMP_Text inceleIcerikYazisi;
+    private BattleUnit suAnIncelenenHedef;
+
     [Header("Yetenek Sistemi (Ateşli Ok)")]
     public GameObject yetenekButonu;
     public TMP_Text yetenekButonuYazisi;
@@ -263,8 +269,29 @@ public class BattleManager : MonoBehaviour
         GameObject basilacakPrefab = (veri != null && veri.birimPrefab != null) ? veri.birimPrefab : unitPrefab;
         GameObject yeniAsker = Instantiate(basilacakPrefab, pozisyon, Quaternion.identity);
         
+        // YENİ: UnitData'nın orijinal dosyasını (Asset) bozmamak için kopyasını oluşturuyoruz
+        UnitData klonVeri = ScriptableObject.Instantiate(veri);
+        
+        // Makro haritadaki buffları oku ve klona ekle
+        ArmyStats orduStats = null;
+        if (bizdenMi && SavasHafizasi.Instance != null && SavasHafizasi.Instance.savasanBizimOrdu != null)
+        {
+            orduStats = SavasHafizasi.Instance.savasanBizimOrdu.GetComponent<ArmyStats>();
+        }
+        else if (!bizdenMi && SavasHafizasi.Instance != null && SavasHafizasi.Instance.sonSavasilanObje != null)
+        {
+            orduStats = SavasHafizasi.Instance.sonSavasilanObje.GetComponent<ArmyStats>();
+        }
+
+        if (orduStats != null)
+        {
+            klonVeri.hasar += orduStats.ekstraBirlikHasari;
+            klonVeri.maxCan += orduStats.ekstraBirlikCani;
+            // Not: İleride hareket hızı veya zırh buffları eklenirse buraya dahil edilebilir
+        }
+
         BattleUnit birimKodu = yeniAsker.GetComponent<BattleUnit>();
-        birimKodu.Setup(veri, x, y, bizdenMi);
+        birimKodu.Setup(klonVeri, x, y, bizdenMi);
 
         if (bizdenMi) oyuncuBirimleri.Add(birimKodu);
         else dusmanBirimleri.Add(birimKodu);
@@ -416,6 +443,57 @@ public class BattleManager : MonoBehaviour
         SavasDurumunuKontrolEt();
     }
 
+    // --- YENİ: MİKRO İNCELE (INSPECT) SİSTEMİ ---
+    public void IncelePaneliniAc(BattleUnit birim)
+    {
+        if (incelePaneli == null) return;
+        
+        suAnIncelenenHedef = birim;
+        incelePaneli.SetActive(true);
+
+        inceleBaslikYazisi.text = (birim.oyuncununBirimiMi ? "Dost " : "Düşman ") + birim.veri.birimAdi;
+
+        string icerik = "";
+        icerik += $"Can: {birim.mevcutCan} / {birim.veri.maxCan}\n";
+        icerik += $"Hasar: {birim.veri.hasar}\n";
+        
+        int anlikZirh = birim.veri.zirhDegeri;
+        if (birim.savunmaPozisyonuAktif) anlikZirh += 2; // Savunmada zırhı artır
+        icerik += $"Zırh: {anlikZirh}\n";
+        
+        icerik += $"İsabet Oranı: %{birim.veri.isabetDegeri * 10}\n";
+        icerik += $"Saldırı Menzili: {birim.veri.saldiriMenzili}\n";
+        
+        string hareketDurumu = birim.yuruduMu ? "Yürüdü" : "Bekliyor";
+        icerik += $"Hareket: {hareketDurumu} (Menzil: {birim.veri.hareketMenzili})\n";
+
+        if (birim.yetenekCooldown > 0)
+        {
+            icerik += $"\nYetenek Bekleme: <color=orange>{birim.yetenekCooldown} Tur</color>\n";
+        }
+
+        if (birim.savunmaPozisyonuAktif)
+        {
+            icerik += $"\n<color=blue>Savunma Pozisyonunda!</color>";
+        }
+
+        inceleIcerikYazisi.text = icerik;
+    }
+
+    public void IncelePaneliniKapat()
+    {
+        suAnIncelenenHedef = null;
+        if (incelePaneli != null) incelePaneli.SetActive(false);
+    }
+
+    public void GuncelleIncelePaneli()
+    {
+        if (incelePaneli != null && incelePaneli.activeSelf && suAnIncelenenHedef != null)
+        {
+            IncelePaneliniAc(suAnIncelenenHedef);
+        }
+    }
+
     void Update()
     {
         if (savasBittiMi) return;
@@ -424,10 +502,33 @@ public class BattleManager : MonoBehaviour
         // YENİ: Eğer haritadaki HERHANGİ bir bizim askerimiz yürüyorsa yeni komut verme!
         foreach (var asker in oyuncuBirimleri) { if (asker.HareketEdiyorMu()) return; }
 
-        // SAĞ TIK VEYA ESC: Seçimi İptal Et
-        if (Input.GetMouseButtonDown(1) || Input.GetKeyDown(KeyCode.Escape))
+        // SAĞ TIK: Birimi İncele VEYA Seçimi/İncelemeyi İptal Et
+        if (Input.GetMouseButtonDown(1))
+        {
+            Vector3 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+            RaycastHit2D[] hits = Physics2D.RaycastAll(mousePos, Vector2.zero);
+            BattleUnit tiklananBirim = null;
+
+            foreach (var h in hits)
+            {
+                if (h.collider.GetComponent<BattleUnit>() != null)
+                    tiklananBirim = h.collider.GetComponent<BattleUnit>();
+            }
+
+            if (tiklananBirim != null)
+            {
+                IncelePaneliniAc(tiklananBirim);
+            }
+            else
+            {
+                SecimiTemizle();
+                IncelePaneliniKapat();
+            }
+        }
+        else if (Input.GetKeyDown(KeyCode.Escape))
         {
             SecimiTemizle();
+            IncelePaneliniKapat();
         }
 
         // SOL TIK: Birim Seç, Düşmana Saldır veya Yürü
