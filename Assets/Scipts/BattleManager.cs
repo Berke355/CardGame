@@ -27,11 +27,12 @@ public class BattleManager : MonoBehaviour
     public TMP_Text inceleIcerikYazisi;
     private BattleUnit suAnIncelenenHedef;
 
-    [Header("Yetenek Sistemi (Ateşli Ok)")]
+    [Header("Yetenek Sistemi")]
     public GameObject yetenekButonu;
     public TMP_Text yetenekButonuYazisi;
     public GameObject yananOrmanPrefab;
     public bool atesliOkAktifMi = false;
+    public bool sabitleAktifMi = false; // YENİ: Balista yeteneği için
 
     [Header("Tur Sistemi")]
     public bool oyuncuTuru = true; // Oyun bizimle başlar
@@ -386,6 +387,27 @@ public class BattleManager : MonoBehaviour
         saldiran.yetenekCooldown = 2; // 2 Tur bekleme
     }
 
+    public void SabitleGerceklestir(BattleUnit saldiran, BattleUnit savunan)
+    {
+        Debug.Log("🕸️ AĞ FIRLATILDI!");
+        
+        int eskiCan = savunan.mevcutCan;
+        SaldiriGerceklestir(saldiran, savunan);
+        
+        // Eğer hasar vurabildiyse (ıska geçmediyse/seçmediyse) sabitleme tutmuştur
+        if (savunan.mevcutCan < eskiCan)
+        {
+            Debug.Log($"[SABİTLEME] {savunan.veri.birimAdi} ağa yakalandı ve 2 tur hareket edemeyecek!");
+            savunan.sabitlenmeSuresi = 2;
+        }
+        else
+        {
+            Debug.Log("[SABİTLEME] Ağ hedefi tutturamadı!");
+        }
+        
+        saldiran.yetenekCooldown = 3;
+    }
+
     public void OrmaniAteseVer(BattleTile tile)
     {
         if (tile != null && tile.zeminTuru == BattleTile.ZeminTipi.Orman && yananOrmanPrefab != null)
@@ -417,6 +439,12 @@ public class BattleManager : MonoBehaviour
                 yetenekButonu.SetActive(false);
                 Debug.Log("Okçu ateşli ok modunda! Bir düşman seç veya ormanı yak.");
             }
+            else if (seciliBirim.veri.birimAdi == "Balista")
+            {
+                sabitleAktifMi = true;
+                yetenekButonu.SetActive(false);
+                Debug.Log("Balista ağ fırlatma modunda! Bir düşman seç.");
+            }
             else if (seciliBirim.veri.birimAdi == "Piyade")
             {
                 seciliBirim.savunmaPozisyonuAktif = true;
@@ -426,6 +454,8 @@ public class BattleManager : MonoBehaviour
             }
             else if (seciliBirim.veri.birimAdi == "Süvari")
             {
+                if (seciliBirim.sabitlenmeSuresi > 0) { Debug.Log("HATA: Bu birlik ağa yakalandığı için Vur Kaç yapamaz!"); return; }
+                
                 seciliBirim.vurKacAktif = true;
                 seciliBirim.yetenekCooldown = 2;
                 if (seciliBirim.saldirdiMi) seciliBirim.yuruduMu = false; // Eğer önceden saldırdıysa hakkı iade et
@@ -434,6 +464,8 @@ public class BattleManager : MonoBehaviour
             }
             else if (seciliBirim.veri.birimAdi == "Koçbaşı")
             {
+                if (seciliBirim.sabitlenmeSuresi > 0) { Debug.Log("HATA: Bu birlik ağa yakalandığı için Hücum edemez!"); return; }
+                
                 if (seciliBirim.yuruduMu)
                 {
                     Debug.Log("Koçbaşı bu tur zaten yürüdü, Hücum edemez!");
@@ -596,6 +628,22 @@ public class BattleManager : MonoBehaviour
         string hareketDurumu = birim.yuruduMu ? "Yürüdü" : "Bekliyor";
         icerik += $"Hareket: {hareketDurumu} (Menzil: {birim.veri.hareketMenzili})\n";
 
+        // DURUMLAR SİSTEMİ
+        string durumlar = "";
+        if (grid[birim.gridX, birim.gridY].zeminTuru == BattleTile.ZeminTipi.YananOrman)
+        {
+            durumlar += "<color=red>Yanıyor!</color> ";
+        }
+        if (birim.sabitlenmeSuresi > 0)
+        {
+            durumlar += $"<color=yellow>Sabitlenmiş ({birim.sabitlenmeSuresi} Tur)</color> ";
+        }
+        
+        if (!string.IsNullOrEmpty(durumlar))
+        {
+            icerik += $"\nDurum: {durumlar}\n";
+        }
+
         if (birim.yetenekCooldown > 0)
         {
             icerik += $"\nYetenek Bekleme: <color=orange>{birim.yetenekCooldown} Tur</color>\n";
@@ -714,6 +762,10 @@ public class BattleManager : MonoBehaviour
                                 {
                                     AtesliOkGerceklestir(seciliBirim, tiklananBirim);
                                 }
+                                else if (sabitleAktifMi && seciliBirim.veri.birimAdi == "Balista")
+                                {
+                                    SabitleGerceklestir(seciliBirim, tiklananBirim);
+                                }
                                 else
                                 {
                                     SaldiriGerceklestir(seciliBirim, tiklananBirim);
@@ -770,7 +822,11 @@ public class BattleManager : MonoBehaviour
                     {
                         if (!seciliBirim.saldirdiMi || seciliBirim.vurKacAktif)
                         {
-                            if (!seciliBirim.yuruduMu)
+                            if (seciliBirim.sabitlenmeSuresi > 0)
+                            {
+                                Debug.Log("HATA: Bu asker ağa yakalanmış, hareket edemez!");
+                            }
+                            else if (!seciliBirim.yuruduMu)
                             {
                                 // BFS YOL BULMA İLE GİDİLEBİLİR ROTAYI ÇIKAR
                                 var adimlar = RotaBulBFS(new Vector2Int(seciliBirim.gridX, seciliBirim.gridY), new Vector2Int(tiklananTile.x, tiklananTile.y));
@@ -811,6 +867,7 @@ public class BattleManager : MonoBehaviour
         }
         
         atesliOkAktifMi = false;
+        sabitleAktifMi = false;
         if (yetenekButonu != null) yetenekButonu.SetActive(false);
         
         MenzilleriTemizle();
@@ -836,7 +893,7 @@ public class BattleManager : MonoBehaviour
         // Yetenek Arayüzünü Kontrol Et
         if (yetenekButonu != null)
         {
-            if (birim.veri.birimAdi == "Okçu" || birim.veri.birimAdi == "Piyade" || birim.veri.birimAdi == "Süvari" || birim.veri.birimAdi == "Koçbaşı")
+            if (birim.veri.birimAdi == "Okçu" || birim.veri.birimAdi == "Piyade" || birim.veri.birimAdi == "Süvari" || birim.veri.birimAdi == "Koçbaşı" || birim.veri.birimAdi == "Balista")
             {
                 yetenekButonu.SetActive(true);
                 
@@ -845,6 +902,7 @@ public class BattleManager : MonoBehaviour
                 else if (birim.veri.birimAdi == "Piyade") yetenekIsmi = "Savunma Pozisyonu";
                 else if (birim.veri.birimAdi == "Süvari") yetenekIsmi = "Vur Kaç";
                 else if (birim.veri.birimAdi == "Koçbaşı") yetenekIsmi = "Hücum!";
+                else if (birim.veri.birimAdi == "Balista") yetenekIsmi = "Sabitle";
 
                 if (birim.yetenekCooldown > 0)
                 {
@@ -925,6 +983,7 @@ public class BattleManager : MonoBehaviour
             dusman.vurKacAktif = false;
             
             if (dusman.yetenekCooldown > 0) dusman.yetenekCooldown--;
+            if (dusman.sabitlenmeSuresi > 0) dusman.sabitlenmeSuresi--;
             
             if (grid[dusman.gridX, dusman.gridY].zeminTuru == BattleTile.ZeminTipi.YananOrman)
             {
@@ -958,33 +1017,40 @@ public class BattleManager : MonoBehaviour
             }
             else
             {
-                // 2. KURAL: Hedefe Engel-Kaya Tanımadan A* Rotası ile Yürü
-                var rota = RotaBulBFS(new Vector2Int(dusman.gridX, dusman.gridY), new Vector2Int(hedef.gridX, hedef.gridY), true);
-
-                if (rota != null && rota.Count > 0)
+                if (dusman.sabitlenmeSuresi > 0)
                 {
-                    rota.RemoveAt(rota.Count - 1); // Hedefin kucağına çıkmamak (askeri ezmemek) için son adımı sil
+                    Debug.Log($"[SABİTLENME] Düşman {dusman.veri.birimAdi} ağa takıldığı için yürüyemiyor!");
+                }
+                else
+                {
+                    // 2. KURAL: Hedefe Engel-Kaya Tanımadan A* Rotası ile Yürü
+                    var rota = RotaBulBFS(new Vector2Int(dusman.gridX, dusman.gridY), new Vector2Int(hedef.gridX, hedef.gridY), true);
 
-                    List<Vector2Int> atilacakAdimlar = new List<Vector2Int>();
-                    for (int i = 0; i < rota.Count; i++)
+                    if (rota != null && rota.Count > 0)
                     {
-                        if (i >= dusman.veri.hareketMenzili) break; // Askerin nefesi ancak bu kadarına yeterse dur
-                        atilacakAdimlar.Add(rota[i]);
-                    }
+                        rota.RemoveAt(rota.Count - 1); // Hedefin kucağına çıkmamak (askeri ezmemek) için son adımı sil
 
-                    if (atilacakAdimlar.Count > 0)
-                    {
-                        Vector2Int varis = atilacakAdimlar[atilacakAdimlar.Count - 1];
-                        dusman.gridX = varis.x;
-                        dusman.gridY = varis.y;
-                        
-                        dusman.RotayiBaslat(atilacakAdimlar, tileBoyutu);
-                        dusman.yuruduMu = true;
-                        Debug.Log($"{dusman.veri.birimAdi} etrafından dolanarak hedefe yaklaşıyor.");
+                        List<Vector2Int> atilacakAdimlar = new List<Vector2Int>();
+                        for (int i = 0; i < rota.Count; i++)
+                        {
+                            if (i >= dusman.veri.hareketMenzili) break; // Askerin nefesi ancak bu kadarına yeterse dur
+                            atilacakAdimlar.Add(rota[i]);
+                        }
 
-                        // YAPAY ZEKA: Animasyson bitene kadar bir sonraki koda geçme!
-                        yield return new WaitUntil(() => !dusman.HareketEdiyorMu());
-                        yield return new WaitForSeconds(0.2f);
+                        if (atilacakAdimlar.Count > 0)
+                        {
+                            Vector2Int varis = atilacakAdimlar[atilacakAdimlar.Count - 1];
+                            dusman.gridX = varis.x;
+                            dusman.gridY = varis.y;
+                            
+                            dusman.RotayiBaslat(atilacakAdimlar, tileBoyutu);
+                            dusman.yuruduMu = true;
+                            Debug.Log($"{dusman.veri.birimAdi} etrafından dolanarak hedefe yaklaşıyor.");
+
+                            // YAPAY ZEKA: Animasyson bitene kadar bir sonraki koda geçme!
+                            yield return new WaitUntil(() => !dusman.HareketEdiyorMu());
+                            yield return new WaitForSeconds(0.2f);
+                        }
                     }
                 }
 
@@ -1014,6 +1080,7 @@ public class BattleManager : MonoBehaviour
             asker.vurKacAktif = false;
             
             if (asker.yetenekCooldown > 0) asker.yetenekCooldown--;
+            if (asker.sabitlenmeSuresi > 0) asker.sabitlenmeSuresi--;
             
             if (grid[asker.gridX, asker.gridY].zeminTuru == BattleTile.ZeminTipi.YananOrman)
             {

@@ -14,13 +14,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::UnitData
   birimAdi: Balista
   birimGorseli: {fileID: -6255568789289567553, guid: cba800045b721974ba4854c0c950efed, type: 3}
+  birimPrefab: {fileID: 0}
   maxCan: 1
-  hasar: 4
-  zirhDegeri: 8
-  isabetDegeri: 2
+  hasar: 1
+  zirhDegeri: 10
+  isabetDegeri: 15
   isBina: 0
   askerlereHasarVurabilirMi: 1
   binaHasarCari: 1
   binayaEkstraHasar: 0
   hareketMenzili: 1
-  saldiriMenzili: 5
+  saldiriMenzili: 6

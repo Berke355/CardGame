@@ -19,6 +19,7 @@ public class BattleUnit : MonoBehaviour
     public int yetenekCooldown = 0; // Yetenek kullandıktan sonra bekleyeceği tur sayısı
     public bool savunmaPozisyonuAktif = false;
     public bool vurKacAktif = false;
+    public int sabitlenmeSuresi = 0; // Ağ fırlatma mekaniği için eklendi
 
     [Header("Hareket Animasyonu")]
     public float hareketHizi = 5f;
