@@ -267,7 +267,8 @@ public class BattleManager : MonoBehaviour
         
         // YENİ: Eğer UnitData içine özel bir prefab atanmışsa onu kullan, yoksa eski jenerik prefab'a düş
         GameObject basilacakPrefab = (veri != null && veri.birimPrefab != null) ? veri.birimPrefab : unitPrefab;
-        GameObject yeniAsker = Instantiate(basilacakPrefab, pozisyon, Quaternion.identity);
+        // Quaternion.identity (Sıfır rotasyon) yerine prefabın kendi dönüş açısını koru
+        GameObject yeniAsker = Instantiate(basilacakPrefab, pozisyon, basilacakPrefab.transform.rotation);
         
         // YENİ: UnitData'nın orijinal dosyasını (Asset) bozmamak için kopyasını oluşturuyoruz
         UnitData klonVeri = ScriptableObject.Instantiate(veri);
@@ -431,7 +432,124 @@ public class BattleManager : MonoBehaviour
                 Debug.Log("Süvari Vur Kaç modunda! Saldırıdan sonra tekrar yürüyebilecek.");
                 MenzilleriGoster(seciliBirim);
             }
+            else if (seciliBirim.veri.birimAdi == "Koçbaşı")
+            {
+                if (seciliBirim.yuruduMu)
+                {
+                    Debug.Log("Koçbaşı bu tur zaten yürüdü, Hücum edemez!");
+                    return;
+                }
+                
+                yetenekButonu.SetActive(false);
+                MenzilleriTemizle();
+                StartCoroutine(KocbasiHucum(seciliBirim));
+            }
         }
+    }
+
+    public BattleUnit GetUnitAt(int x, int y)
+    {
+        foreach (var asker in oyuncuBirimleri) { if (asker.gridX == x && asker.gridY == y) return asker; }
+        foreach (var asker in dusmanBirimleri) { if (asker.gridX == x && asker.gridY == y) return asker; }
+        return null;
+    }
+
+    private IEnumerator KocbasiHucum(BattleUnit kocbasi)
+    {
+        List<Vector2Int> gidilecekKareler = new List<Vector2Int>();
+        int hedefX = kocbasi.gridX;
+        int mevcutY = kocbasi.gridY;
+        
+        for (int i = 0; i < 4; i++)
+        {
+            int testX = hedefX + 1;
+            
+            // Harita sınırı dışına çıkma
+            if (testX >= genislik) break;
+            
+            BattleTile tile = grid[testX, mevcutY];
+            // Engel kontrolü
+            if (tile == null || !tile.YurunebilirMi) break;
+
+            BattleUnit onundekiBirim = GetUnitAt(testX, mevcutY);
+            if (onundekiBirim != null)
+            {
+                if (onundekiBirim.veri.birimAdi == "Kale Kapısı")
+                {
+                    // Kale kapısına çarptı
+                    Debug.Log("Koçbaşı Kale Kapısına çarptı! Bedelsiz hasar vuruyor.");
+                    SaldiriGerceklestir(kocbasi, onundekiBirim); 
+                    kocbasi.saldirdiMi = false; // Hücum ücretsiz vurur
+                    break;
+                }
+                else
+                {
+                    // Savrulma (Push)
+                    List<Vector2Int> yanKareler = new List<Vector2Int>();
+                    if (mevcutY + 1 < yukseklik && grid[testX, mevcutY + 1].YurunebilirMi && GetUnitAt(testX, mevcutY + 1) == null) 
+                        yanKareler.Add(new Vector2Int(testX, mevcutY + 1));
+                        
+                    if (mevcutY - 1 >= 0 && grid[testX, mevcutY - 1].YurunebilirMi && GetUnitAt(testX, mevcutY - 1) == null) 
+                        yanKareler.Add(new Vector2Int(testX, mevcutY - 1));
+                    
+                    Vector2Int savrulmaNoktasi = new Vector2Int(-1, -1);
+                    if (yanKareler.Count > 0)
+                    {
+                        savrulmaNoktasi = yanKareler[Random.Range(0, yanKareler.Count)];
+                    }
+                    else
+                    {
+                        // Geriye doğru savrulma (X + 1 = testX + 1)
+                        if (testX + 1 < genislik && grid[testX + 1, mevcutY].YurunebilirMi && GetUnitAt(testX + 1, mevcutY) == null)
+                        {
+                            savrulmaNoktasi = new Vector2Int(testX + 1, mevcutY);
+                        }
+                    }
+
+                    if (savrulmaNoktasi.x != -1)
+                    {
+                        // Savur
+                        Debug.Log($"{onundekiBirim.veri.birimAdi} birimi yana/ileriye savruldu!");
+                        onundekiBirim.gridX = savrulmaNoktasi.x;
+                        onundekiBirim.gridY = savrulmaNoktasi.y;
+                        List<Vector2Int> savrulmaRotasi = new List<Vector2Int> { savrulmaNoktasi };
+                        onundekiBirim.RotayiBaslat(savrulmaRotasi, tileBoyutu);
+                        
+                        // HedefX güncellenir çünkü önümüz açıldı
+                        hedefX = testX;
+                        gidilecekKareler.Add(new Vector2Int(hedefX, mevcutY));
+                    }
+                    else
+                    {
+                        // Savrulacak yer yok, çarp ve dur
+                        Debug.Log($"Koçbaşı {onundekiBirim.veri.birimAdi} birimine çarptı ve durdu!");
+                        break;
+                    }
+                }
+            }
+            else
+            {
+                // Önü tamamen boş, ilerle
+                hedefX = testX;
+                gidilecekKareler.Add(new Vector2Int(hedefX, mevcutY));
+            }
+        }
+
+        if (gidilecekKareler.Count > 0)
+        {
+            kocbasi.gridX = hedefX;
+            kocbasi.gridY = mevcutY;
+            kocbasi.RotayiBaslat(gidilecekKareler, tileBoyutu);
+            yield return new WaitUntil(() => !kocbasi.HareketEdiyorMu());
+        }
+        else
+        {
+            Debug.Log("Koçbaşı hareket edemedi! Önünde direkt bir engel var.");
+        }
+
+        kocbasi.yuruduMu = true;
+        kocbasi.yetenekCooldown = 3;
+        SecimiTemizle();
     }
 
     public void BirimOldu(BattleUnit olenBirim)
@@ -718,7 +836,7 @@ public class BattleManager : MonoBehaviour
         // Yetenek Arayüzünü Kontrol Et
         if (yetenekButonu != null)
         {
-            if (birim.veri.birimAdi == "Okçu" || birim.veri.birimAdi == "Piyade" || birim.veri.birimAdi == "Süvari")
+            if (birim.veri.birimAdi == "Okçu" || birim.veri.birimAdi == "Piyade" || birim.veri.birimAdi == "Süvari" || birim.veri.birimAdi == "Koçbaşı")
             {
                 yetenekButonu.SetActive(true);
                 
@@ -726,6 +844,7 @@ public class BattleManager : MonoBehaviour
                 if (birim.veri.birimAdi == "Okçu") yetenekIsmi = "Ateşli Ok";
                 else if (birim.veri.birimAdi == "Piyade") yetenekIsmi = "Savunma Pozisyonu";
                 else if (birim.veri.birimAdi == "Süvari") yetenekIsmi = "Vur Kaç";
+                else if (birim.veri.birimAdi == "Koçbaşı") yetenekIsmi = "Hücum!";
 
                 if (birim.yetenekCooldown > 0)
                 {

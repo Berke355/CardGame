@@ -14,13 +14,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::UnitData
   birimAdi: "Kale Kap\u0131s\u0131"
   birimGorseli: {fileID: -6754239384357436178, guid: a7c7bf71daa0d104f8f4b0f327ff4041, type: 3}
-  maxCan: 1
-  hasar: 0
-  zirhDegeri: 1
-  isabetDegeri: 0
+  birimPrefab: {fileID: 8682845211254545541, guid: eb57505c1f6933f4186e9b739287b087, type: 3}
+  maxCan: 5
+  hasar: 1
+  zirhDegeri: 15
+  isabetDegeri: 1
   isBina: 1
   askerlereHasarVurabilirMi: 1
   binaHasarCari: 0
   binayaEkstraHasar: 0
   hareketMenzili: 0
-  saldiriMenzili: 0
+  saldiriMenzili: 7

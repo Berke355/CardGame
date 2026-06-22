@@ -30,6 +30,50 @@ public class BattleUnit : MonoBehaviour
 
     public void Setup(UnitData baslangicVerisi, int x, int y, bool bizdenMi)
     {
+        // canYazisi Inspector'dan atanmamışsa, çocuk objelerden bul veya sıfırdan oluştur
+        if (canYazisi == null)
+        {
+            canYazisi = GetComponentInChildren<TMP_Text>(true);
+        }
+        if (canYazisi == null)
+        {
+            // Prefab'da çalışan bir TMP_Text yok, sıfırdan oluştur
+            GameObject canvasObj = new GameObject("OtoCanvas");
+            canvasObj.transform.SetParent(transform);
+            
+            Canvas canvas = canvasObj.AddComponent<Canvas>();
+            canvas.renderMode = RenderMode.WorldSpace;
+            canvas.sortingOrder = 20;
+            
+            RectTransform canvasRT = canvasObj.GetComponent<RectTransform>();
+            canvasRT.localPosition = new Vector3(0f, 0.15f, 0f);
+            canvasRT.localRotation = Quaternion.identity;
+            canvasRT.localScale = new Vector3(0.004f, 0.004f, 1f);
+            canvasRT.sizeDelta = new Vector2(200f, 50f);
+            
+            GameObject textObj = new GameObject("CanYazisi");
+            textObj.transform.SetParent(canvasObj.transform);
+            
+            canYazisi = textObj.AddComponent<TextMeshProUGUI>();
+            canYazisi.text = "";
+            canYazisi.fontSize = 36;
+            canYazisi.color = Color.white;
+            canYazisi.alignment = TextAlignmentOptions.Center;
+            canYazisi.fontStyle = FontStyles.Bold;
+            
+            // Arkaplan gölgesi için outline ekle (okunabilirlik)
+            canYazisi.outlineWidth = 0.3f;
+            canYazisi.outlineColor = Color.black;
+            
+            RectTransform textRT = textObj.GetComponent<RectTransform>();
+            textRT.localPosition = Vector3.zero;
+            textRT.localRotation = Quaternion.identity;
+            textRT.localScale = Vector3.one;
+            textRT.sizeDelta = new Vector2(200f, 50f);
+            
+            Debug.Log($"[BattleUnit] canYazisi sıfırdan oluşturuldu: {gameObject.name}");
+        }
+        
         veri = baslangicVerisi;
         mevcutCan = veri.maxCan;
         gridX = x;
@@ -39,12 +83,19 @@ public class BattleUnit : MonoBehaviour
         if (veri.birimGorseli != null)
         {
             SpriteRenderer sr = GetComponent<SpriteRenderer>();
-            sr.sprite = veri.birimGorseli;
             
-            // YENİ: Düşman askerlerinin yüzünü otomatik olarak oyuncuya (sola) çevir
-            // Eğer senin orijinal resimlerin zaten sola bakıyorsa burayı tam tersi yapabilirsin
-            if (!bizdenMi) sr.flipX = true;
-            else sr.flipX = false;
+            // Eğer özel bir prefab atanmışsa, onun üstündeki görseli ezme! Sadece jenerik prefabı ez.
+            if (veri.birimPrefab == null)
+            {
+                sr.sprite = veri.birimGorseli;
+            }
+            
+            // YENİ: Binaların (Kale Kapısı gibi) veya özel tasarlanmış yapıların yönünü (flip) zorla değiştirme
+            if (!veri.isBina)
+            {
+                if (!bizdenMi) sr.flipX = true;
+                else sr.flipX = false;
+            }
         }
 
         // YENİ: Askerlerin her zaman ağaçların ve tepelerin (Tile'ların) ÜSTÜNDE görünmesini sağla
@@ -56,6 +107,11 @@ public class BattleUnit : MonoBehaviour
 
         // YENİ: Asker doğar doğmaz can yazısını güncelle
         CaniGuncelle();
+        
+        if (veri != null && veri.birimAdi == "Kale Kapısı")
+        {
+            SetAdjacentTilesObstacle(true);
+        }
     }
 
     public void CaniGuncelle()
@@ -116,5 +172,34 @@ public class BattleUnit : MonoBehaviour
     public bool HareketEdiyorMu()
     {
         return yoldaMi;
+    }
+
+    private void SetAdjacentTilesObstacle(bool isObstacle)
+    {
+        if (BattleManager.Instance == null || BattleManager.Instance.grid == null) return;
+        
+        int targetYPlus = gridY + 1;
+        int targetYMinus = gridY - 1;
+        
+        // Sınır kontrolleriyle + ve - y koordinatındaki tile'ları engel yap/kaldır
+        if (targetYPlus < BattleManager.Instance.yukseklik)
+        {
+            var tile = BattleManager.Instance.grid[gridX, targetYPlus];
+            if (tile != null) tile.geciciEngel = isObstacle;
+        }
+        
+        if (targetYMinus >= 0)
+        {
+            var tile = BattleManager.Instance.grid[gridX, targetYMinus];
+            if (tile != null) tile.geciciEngel = isObstacle;
+        }
+    }
+
+    private void OnDestroy()
+    {
+        if (veri != null && veri.birimAdi == "Kale Kapısı")
+        {
+            SetAdjacentTilesObstacle(false);
+        }
     }
 }

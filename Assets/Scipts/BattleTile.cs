@@ -10,9 +10,10 @@ public class BattleTile : MonoBehaviour
     public ZeminTipi zeminTuru = ZeminTipi.Duz; 
     
     // YENİ: Kayanın üzerinden geçilemez, diğerlerinin üzerinden geçilebilir
-    public bool YurunebilirMi => zeminTuru != ZeminTipi.Kaya;
+    public bool YurunebilirMi => zeminTuru != ZeminTipi.Kaya && !geciciEngel;
     
-    // ESKİ engelMi özelliğini şimdilik geriye dönük uyumluluk için siliyoruz, BattleManager'da güncelleyeceğiz.
+    // Kale kapısı vb. tarafından kapatılabilen dinamik engel
+    [HideInInspector] public bool geciciEngel = false;
     
     private Color orijinalRenk; 
 
