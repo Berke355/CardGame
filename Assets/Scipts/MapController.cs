@@ -32,6 +32,9 @@ public class MapController : MonoBehaviour
     public TileBase altinTile; // Altın Madeni
     public TileBase tasTile;   // Taş Ocağı
     public TileBase ormanTile; // Orman (Yemek)
+    
+    [Header("Özel Biyomlar")]
+    public TileBase karTile; // YENİ: Karlı Bölge Zemin Tile'ı
 
     [Header("Savaş Sisi ve Sınır (Territory) Sistemi")]
     public Tilemap fogTilemap; // Siyah sisi dizeceğimiz katman
@@ -963,6 +966,36 @@ public class MapController : MonoBehaviour
             {
                 Vector3 kameraHedefi = new Vector3(dunyaPozisyonu.x, dunyaPozisyonu.y, Camera.main.transform.position.z);
                 Camera.main.transform.position = kameraHedefi;
+            }
+            
+            // YENİ EKLENDİ: STARK KIŞI
+            if (GameManager.Instance != null && GameManager.Instance.seciliHanedan == GameManager.HanedanTipi.Stark)
+            {
+                if (karTile != null)
+                {
+                    Debug.Log("[SİSTEM] Stark Hanedanı Seçildi: Başkentin etrafına Kış geliyor!");
+                    foreach (var posInner in bounds.allPositionsWithin)
+                    {
+                        if (hexTilemap.HasTile(posInner))
+                        {
+                            // Başkente olan kuş uçuşu uzaklığı hesapla. (7 blok için yaklaşık 8f mesafe idealdir)
+                            float distance = Vector2.Distance(dunyaPozisyonu, hexTilemap.GetCellCenterWorld(posInner));
+                            if (distance <= 8f) 
+                            {
+                                TileBase currentTile = hexTilemap.GetTile(posInner);
+                                // Suyu, denizi veya altın/taş madenini dondurmak istemiyorsak sadece Çimen ve Ormanı donduralım:
+                                if (currentTile == cimenTile || currentTile == ormanTile)
+                                {
+                                    hexTilemap.SetTile(posInner, karTile);
+                                }
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    Debug.LogError("[SİSTEM HATA] Stark kışını getirmek için MapController'da 'Kar Tile' atanmamış!");
+                }
             }
         }
     }

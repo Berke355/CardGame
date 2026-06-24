@@ -47,7 +47,8 @@ public class BattleManager : MonoBehaviour
     public class BiyomVerisi
     {
         public string biyomAdi; // Makro haritadaki tile ismi, örn: "Kar"
-        public GameObject[] tilePrefablari; // Kar, buz, kütük vb. prefablari atılacak
+        public GameObject temelZeminPrefab; // O biyomun üzerinde yürünen temiz zemini (Çim, Kar, Kum vs.)
+        public GameObject[] engelPrefablari; // Ağaç, Kaya, Donmuş Göl gibi rastgele serpilecek engeller
     }
     
     [Header("Biyom Veritabanı")]
@@ -93,9 +94,16 @@ public class BattleManager : MonoBehaviour
         if (SavasHafizasi.Instance != null && !string.IsNullOrEmpty(SavasHafizasi.Instance.sonSavasilanBiyom))
         {
             okunanBiyom = SavasHafizasi.Instance.sonSavasilanBiyom;
+            Debug.Log($"[BİYOM TESPİTİ] Makro haritadan okunan zemin ismi: {okunanBiyom}");
+            
             foreach (var b in biyomlar)
             {
-                if (b.biyomAdi == okunanBiyom) { secilenBiyom = b; break; }
+                // Artık isim birebir uyuşmasa da içinde geçiyorsa (Örn: "AgacliTile" -> "Agac") eşleşecek
+                if (okunanBiyom.Contains(b.biyomAdi) || b.biyomAdi.Contains(okunanBiyom)) 
+                { 
+                    secilenBiyom = b; 
+                    break; 
+                }
             }
         }
 
@@ -127,15 +135,16 @@ public class BattleManager : MonoBehaviour
                     }
                 }
 
-                GameObject seciliPrefab = varsayilanTilePrefab;
+                // 1. O biyoma ait özel bir temel zemin varsa onu kullan, yoksa klasik çimi kullan
+                GameObject seciliPrefab = (secilenBiyom != null && secilenBiyom.temelZeminPrefab != null) ? secilenBiyom.temelZeminPrefab : varsayilanTilePrefab;
                 
-                // 2. Rastgele Zemin/Engel Seçimi (%15 ihtimalle ve güvenli bölge değilse)
-                if (!baslangicNoktasiMi && secilenBiyom != null && secilenBiyom.tilePrefablari.Length > 0)
+                // 2. Rastgele Engel Seçimi (%15 ihtimalle ve güvenli bölge değilse)
+                if (!baslangicNoktasiMi && secilenBiyom != null && secilenBiyom.engelPrefablari != null && secilenBiyom.engelPrefablari.Length > 0)
                 {
                     if (Random.value < 0.15f) // %15 Şans
                     {
-                        int rastgeleIndex = Random.Range(0, secilenBiyom.tilePrefablari.Length);
-                        seciliPrefab = secilenBiyom.tilePrefablari[rastgeleIndex];
+                        int rastgeleIndex = Random.Range(0, secilenBiyom.engelPrefablari.Length);
+                        seciliPrefab = secilenBiyom.engelPrefablari[rastgeleIndex];
                     }
                 }
 

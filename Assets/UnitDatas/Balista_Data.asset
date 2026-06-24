@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::UnitData
   birimAdi: Balista
   birimGorseli: {fileID: -6255568789289567553, guid: cba800045b721974ba4854c0c950efed, type: 3}
-  birimPrefab: {fileID: 0}
+  birimPrefab: {fileID: 4141954018003826246, guid: 2d59a249a92099b4a8e04dd04c0fe8f4, type: 3}
   maxCan: 1
   hasar: 1
   zirhDegeri: 10

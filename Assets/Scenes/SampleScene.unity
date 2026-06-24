@@ -1748,6 +1748,7 @@ MonoBehaviour:
   altinTile: {fileID: 11400000, guid: 7f58e0cd388efa646ba463b5b67ffc74, type: 2}
   tasTile: {fileID: 11400000, guid: 81ee8af5b704112469b5223e858acbad, type: 2}
   ormanTile: {fileID: 11400000, guid: 99f3d1e6d543ad6458fd8b6d8b34932b, type: 2}
+  karTile: {fileID: 11400000, guid: ec84f15053d9da44b992964b23a5a849, type: 2}
   fogTilemap: {fileID: 1341933565}
   fogTile: {fileID: 11400000, guid: de3198ccec9dbf9419ed2e520fe8e6f5, type: 2}
   bizimSinirlar: []
@@ -4606,6 +4607,7 @@ MonoBehaviour:
   savasanBizimOrdu: {fileID: 0}
   sonSavasilanBiyom: 
   hayattaKalanBirlikler: []
+  savastaOlenBirlikler: []
 --- !u!4 &1938036090
 Transform:
   m_ObjectHideFlags: 0
