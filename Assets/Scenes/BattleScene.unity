@@ -1052,11 +1052,14 @@ MonoBehaviour:
     - {fileID: 1142632828332446667, guid: c266373bffc4fea4493215fd6c264379, type: 3}
     - {fileID: 1142632828332446667, guid: c154ddc1e301b1d43a4164fb0d348d03, type: 3}
     - {fileID: 1142632828332446667, guid: 8772ec50ba549b34489ef5f4bf5befd5, type: 3}
+    - {fileID: 1142632828332446667, guid: b7c660f96a421344bb68dac535dac33f, type: 3}
   - biyomAdi: KarliTile
     temelZeminPrefab: {fileID: 1142632828332446667, guid: 6f2bea6c59ea6ac4c9136b57870a995c, type: 3}
     engelPrefablari:
     - {fileID: 1142632828332446667, guid: b72f1dc3a74cadc45a66b904038b2354, type: 3}
     - {fileID: 1142632828332446667, guid: 3a9242bec44bba94388ce456da8f3aaf, type: 3}
+    - {fileID: 1142632828332446667, guid: e12e986701f8a554899c735d93356238, type: 3}
+    - {fileID: 1142632828332446667, guid: 559f7af35f005d147813404583f6cd45, type: 3}
   varsayilanTilePrefab: {fileID: 1142632828332446667, guid: 857a5c63af2cca44ea73e12d2d492889, type: 3}
   unitPrefab: {fileID: 9014734248190914532, guid: e44d431dc5cd6214796d73246d96ca1d, type: 3}
   piyadeVerisi: {fileID: 11400000, guid: a8f7c76a057386f4da72de51b5347d3b, type: 2}
