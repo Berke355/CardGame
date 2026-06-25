@@ -47,6 +47,13 @@ public class GameManager : MonoBehaviour
     public GameObject odulPaneli; // Savaş bitince ekrana çıkacak siyah kararık alan
     public Transform odulKartlariAlani; // İçinde 3 tane kart Prefab'ının belireceği "Layout Group" alanı
 
+    [Header("Relic (Yadigâr) Sistemi Altyapısı")]
+    public List<RelicData> sahipOlunanRelicler = new List<RelicData>();
+    public List<RelicData> tumRelicHavuzu = new List<RelicData>();
+    public GameObject relicSecimPaneli;
+    public Transform relicSecimAlani;
+    public GameObject relicDisplayPrefab;
+
     [Header("İncele (Inspect) Sistemi")]
     public GameObject incelePaneli;
     public TMPro.TextMeshProUGUI inceleBaslikYazisi;
@@ -304,12 +311,83 @@ public class GameManager : MonoBehaviour
 
     public void RelicSeciminiBaslat()
     {
-        // TODO: İleride burada 3 adet Relic ekrana gelecek
-        Debug.Log("[RELİC SİSTEMİ] Hanedana özel 3 Relic sunuluyor...");
-        Debug.Log("[RELİC SİSTEMİ] (Şimdilik sistem altyapısı kuruldu. Relic objeleri eklendiğinde burada UI paneli açılacak.)");
+        Debug.Log("[RELİC SİSTEMİ] Başkent seviye atladı, Relic seçimi başlatılıyor...");
+        if (incelePaneli != null) incelePaneli.SetActive(false); // Incelemeyi kapat
         
-        // Şimdilik test amaçlı Incele panelini kapatabiliriz:
-        if (incelePaneli != null) incelePaneli.SetActive(false);
+        if (relicSecimPaneli == null || relicDisplayPrefab == null || tumRelicHavuzu.Count == 0)
+        {
+            Debug.LogWarning("Relic UI veya Havuz atanmamış! Lütfen GameManager Inspector'ını kontrol edin.");
+            return;
+        }
+
+        relicSecimPaneli.SetActive(true);
+
+        // İçerideki eski relic seçeneklerini temizle
+        foreach (Transform child in relicSecimAlani)
+        {
+            Destroy(child.gameObject);
+        }
+
+        // Seçili hanedana uygun relicleri bul (En fazla 3 adet)
+        List<RelicData> uygunRelicler = new List<RelicData>();
+        string hanedanIsmi = seciliHanedan.ToString(); // "Stark" veya "Lannister"
+
+        foreach (var r in tumRelicHavuzu)
+        {
+            if (r.turu == RelicTuru.HanedanOzel && r.ozelHanedan == hanedanIsmi && !sahipOlunanRelicler.Contains(r))
+            {
+                uygunRelicler.Add(r);
+            }
+        }
+
+        // Eğer hanedana özel relic kalmadıysa Genel reliclerden doldur
+        if (uygunRelicler.Count < 3)
+        {
+            foreach (var r in tumRelicHavuzu)
+            {
+                if (r.turu == RelicTuru.Genel && !sahipOlunanRelicler.Contains(r) && !uygunRelicler.Contains(r))
+                {
+                    uygunRelicler.Add(r);
+                }
+                if (uygunRelicler.Count >= 3) break;
+            }
+        }
+
+        // Bulunan relicleri ekranda oluştur
+        int maxGosterim = Mathf.Min(3, uygunRelicler.Count);
+        for (int i = 0; i < maxGosterim; i++)
+        {
+            GameObject yeniRelicObj = Instantiate(relicDisplayPrefab, relicSecimAlani);
+            RelicDisplay display = yeniRelicObj.GetComponent<RelicDisplay>();
+            if (display != null)
+            {
+                display.relicVerisi = uygunRelicler[i];
+                display.EkraniGuncelle();
+            }
+        }
+    }
+
+    public void RelicOdulunuAl(RelicData secilenRelic)
+    {
+        if (secilenRelic != null)
+        {
+            sahipOlunanRelicler.Add(secilenRelic);
+            Debug.Log($"[YENİ RELİC KAZANILDI] {secilenRelic.relicAdi}: {secilenRelic.aciklama}");
+            
+            // TODO: Anında uygulanması gereken etkiler (Maks can artışı vb.)
+            if (secilenRelic.kaleGuclendirme)
+            {
+                MakroKale oyuncuKalesi = Object.FindAnyObjectByType<MakroKale>();
+                if (oyuncuKalesi != null) 
+                {
+                    oyuncuKalesi.maxKapiCani += 20;
+                    oyuncuKalesi.kapiCani += 20;
+                    Debug.Log("Kışyarı Savunması aktif: Kale kapı canı +20 arttı!");
+                }
+            }
+        }
+
+        if (relicSecimPaneli != null) relicSecimPaneli.SetActive(false);
     }
 
     // --- YENİ: İNCELE (INSPECT) SİSTEMİ ---
