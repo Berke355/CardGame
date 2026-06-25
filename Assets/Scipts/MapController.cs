@@ -270,11 +270,19 @@ public class MapController : MonoBehaviour
                 {
                     secilenBirlik = hit.collider.gameObject;
                     MenziliCiz(secilenBirlik); 
+                    if (GameManager.Instance != null) GameManager.Instance.IncelePaneliniAc(secilenBirlik);
+                }
+                else if (hit.collider != null && (hit.collider.CompareTag("Kale") || hit.collider.GetComponent<MakroKale>() != null))
+                {
+                    secilenBirlik = null;
+                    MenziliTemizle();
+                    if (GameManager.Instance != null) GameManager.Instance.IncelePaneliniAc(hit.collider.gameObject);
                 }
                 else
                 {
                     secilenBirlik = null;
                     MenziliTemizle(); 
+                    if (GameManager.Instance != null) GameManager.Instance.IncelePaneliniKapat();
                 }
             }
         }

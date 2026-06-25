@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 6324710081063624436}
   - component: {fileID: 1330855874597647052}
   - component: {fileID: 2057339693498517590}
+  - component: {fileID: 6059863613518635573}
   m_Layer: 0
   m_Name: Kale
   m_TagString: Kale
@@ -138,3 +139,19 @@ BoxCollider2D:
   m_AutoTiling: 0
   m_Size: {x: 1, y: 1}
   m_EdgeRadius: 0
+--- !u!114 &6059863613518635573
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5015261094021515828}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e1d69dbcc9de5a449ad77d683d982bc7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::MakroKale
+  maxKapiCani: 10
+  kapiCani: 10
+  kaleSeviyesi: 1
+  maxSeviye: 2

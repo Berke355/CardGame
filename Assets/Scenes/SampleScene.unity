@@ -3969,10 +3969,10 @@ MonoBehaviour:
   seciliHanedan: 0
   hanedanSecimPaneli: {fileID: 113287254}
   aksiyonPuani: 4
-  intikalPuani: 3
-  altin: 10
-  tas: 10
-  yemek: 10
+  intikalPuani: 100
+  altin: 100
+  tas: 100
+  yemek: 100
   cardPrefab: {fileID: 7188566259962474099, guid: 96f23bc1dcbdfbf4a806c257930d7300, type: 3}
   handArea: {fileID: 2021415925}
   starkBaslangicDestesi:

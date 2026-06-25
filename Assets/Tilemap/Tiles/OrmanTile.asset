@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: OrmanTile
   m_EditorClassIdentifier: UnityEngine.dll::UnityEngine.Tilemaps.Tile
   m_Sprite: {fileID: -2135585597343286014, guid: 45e4af644930b564ba21480001bb84e2, type: 3}
-  m_Color: {r: 0, g: 0.15471691, b: 0.000000009221846, a: 1}
+  m_Color: {r: 0.059796773, g: 0.3886792, b: 0, a: 1}
   m_Transform:
     e00: 1
     e01: 0

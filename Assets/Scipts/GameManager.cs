@@ -284,6 +284,34 @@ public class GameManager : MonoBehaviour
         Debug.Log("Ödül alınmadan geçildi.");
     }
 
+    void Update()
+    {
+        // İncele paneli açıksa ve U tuşuna basıldıysa
+        if (incelePaneli != null && incelePaneli.activeSelf && Input.GetKeyDown(KeyCode.U))
+        {
+            if (suAnIncelenenHedef != null)
+            {
+                MakroKale incelenenKale = suAnIncelenenHedef.GetComponent<MakroKale>();
+                if (incelenenKale == null) incelenenKale = suAnIncelenenHedef.GetComponentInParent<MakroKale>();
+                
+                if (incelenenKale != null)
+                {
+                    incelenenKale.SeviyeAtla();
+                }
+            }
+        }
+    }
+
+    public void RelicSeciminiBaslat()
+    {
+        // TODO: İleride burada 3 adet Relic ekrana gelecek
+        Debug.Log("[RELİC SİSTEMİ] Hanedana özel 3 Relic sunuluyor...");
+        Debug.Log("[RELİC SİSTEMİ] (Şimdilik sistem altyapısı kuruldu. Relic objeleri eklendiğinde burada UI paneli açılacak.)");
+        
+        // Şimdilik test amaçlı Incele panelini kapatabiliriz:
+        if (incelePaneli != null) incelePaneli.SetActive(false);
+    }
+
     // --- YENİ: İNCELE (INSPECT) SİSTEMİ ---
     public void IncelePaneliniAc(GameObject hedefObj)
     {
@@ -292,7 +320,10 @@ public class GameManager : MonoBehaviour
         suAnIncelenenHedef = hedefObj;
         incelePaneli.SetActive(true);
         ArmyStats ordu = hedefObj.GetComponent<ArmyStats>();
+        if (ordu == null) ordu = hedefObj.GetComponentInParent<ArmyStats>();
+        
         MakroKale kale = hedefObj.GetComponent<MakroKale>();
+        if (kale == null) kale = hedefObj.GetComponentInParent<MakroKale>();
 
         if (ordu != null)
         {
@@ -335,7 +366,13 @@ public class GameManager : MonoBehaviour
         else if (kale != null)
         {
             inceleBaslikYazisi.text = "Kale Bilgisi";
-            inceleIcerikYazisi.text = $"Kapı Canı: {kale.kapiCani} / {kale.maxKapiCani}";
+            string icerik = $"Seviye: {kale.kaleSeviyesi} / {kale.maxSeviye}\n";
+            icerik += $"Kapı Canı: {kale.kapiCani} / {kale.maxKapiCani}\n\n";
+            if (kale.kaleSeviyesi < kale.maxSeviye)
+            {
+                icerik += "<color=yellow>Kaleyi geliştirip Hanedan Relic'i seçmek için 'U' (Upgrade) tuşuna basın. (Bedel: 30 Altın, 20 Taş)</color>";
+            }
+            inceleIcerikYazisi.text = icerik;
         }
     }
 
